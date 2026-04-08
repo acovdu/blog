@@ -45,16 +45,22 @@ url: /05.大模型/06.AI学习指导.md
 
 主语言：Java、C++等
 
----
+### AI必备概念
 
----
-url: /@pages/loginPage.md
----
+AI历史上的四次大发展
 
+->1950年 人工智能，1980年 机器学习，2010年 深度学习，2020年 大模型，->AI大发展
 
 ---
 
 ---
 url: /@pages/riskLinkPage.md
+---
+
+
+---
+
+---
+url: /@pages/loginPage.md
 ---
 
