@@ -9,6 +9,12 @@
 
 
 
+### Hibernate
+
+- [Hibernate3](/18.Spring生态/08.Hibernate/08.Hibernate3.md)
+- [Hibernate3-HQL](/18.Spring生态/08.Hibernate/12.Hibernate3-HQL.md)
+- [Hibernate4](/18.Spring生态/08.Hibernate/16.Hibernate4.md)
+
 
 ### Other
 
@@ -18,5 +24,6 @@
 - [归档](/@pages/archivesPage.md)
 - [文章清单](/@pages/articleOverviewPage.md)
 - [Java](/12.Java/目录.md)
-- [Untitled](/@pages/loginPage.md)
+- [Spring生态](/18.Spring生态/目录.md)
 - [Untitled](/@pages/riskLinkPage.md)
+- [Untitled](/@pages/loginPage.md)
