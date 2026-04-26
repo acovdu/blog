@@ -27,6 +27,13 @@ url: /@pages/archivesPage.md
 ---
 
 ---
+url: /30.数据库/目录.md
+---
+
+
+---
+
+---
 url: /@pages/articleOverviewPage.md
 ---
 
@@ -10565,6 +10572,3570 @@ mybatis-plus.global-config.db-config.logic-not-delete-value=0
 2. 创建一个核心配置类（上方加入@Component 注解），然后在类里创建不同的方法，不同的方法return 不同的自定义类对象，记得再方法上加入@Bean注解。（统一处理，代码阅读性强）
 
 [参考链接](https://notes.teek.top/mybatis-plus)
+
+---
+
+---
+url: /30.数据库/35.MySQL/目录.md
+---
+
+
+---
+
+---
+url: /30.数据库/35.MySQL/20.MySQL安装.md
+---
+
+## Rhel7安装mysql5.7
+
+[参考链接](https://www.cnblogs.com/zq8421/p/10086361.html)
+
+[MySQL官网下载](https://dev.mysql.com/downloads/mysql/)
+
+因为有依赖关系，得下载下面五个包
+
+mysql-community-client-5.7.24-1.el7.x86\_64.rpm
+
+mysql-community-common-5.7.24-1.el7.x86\_64.rpm
+
+mysql-community-devel-5.7.24-1.el7.x86\_64.rpm
+
+mysql-community-libs-5.7.24-1.el7.x86\_64.rpm
+
+mysql-community-server-5.7.24-1.el7.x86\_64.rpm
+
+查看系统是否已经安装了mysql没有
+
+```sh
+rpm -aq | grep mysql
+```
+
+Mariadb是rhel系统已经安装好了的，需要卸载掉，安装MySQL时可能有冲突，查看Mariadb，代码
+
+```sh
+rpm  -qa | grep mariadb
+```
+
+卸载Mariadb
+
+用 rpm -e 卸载，因为有有依赖关系，末尾加上 --nodeps不顾依赖关系强制卸载
+
+```sh
+rpm  -e  包名  --nodeps
+```
+
+创建安装文件夹
+
+```sh
+[root@localhost Desktop]# mkdir -p /usr/local/mysql
+```
+
+将下载好的5个安装包用 xshell 传过去
+
+```sh
+[root@localhost Desktop]# cd /usr/local/mysql/
+[root@localhost mysql]# ls
+mysql-community-client-5.7.24-1.el7.x86_64.rpm
+mysql-community-common-5.7.24-1.el7.x86_64.rpm
+mysql-community-devel-5.7.24-1.el7.x86_64.rpm
+mysql-community-libs-5.7.24-1.el7.x86_64.rpm
+mysql-community-server-5.7.24-1.el7.x86_64.rpm
+```
+
+开始安装
+
+各个文件是有依赖性的，必须按以下顺序安装
+
+```sh
+rpm -ivh mysql-community-common-5.7.24-1.el7.x86_64.rpm
+rpm -ivh mysql-community-libs-5.7.24-1.el7.x86_64.rpm
+rpm -ivh mysql-community-client-5.7.24-1.el7.x86_64.rpm  
+rpm -ivh mysql-community-server-5.7.24-1.el7.x86_64.rpm
+rpm -ivh mysql-community-devel-5.7.24-1.el7.x86_64.rpm
+```
+
+mysql安装完毕后，是不会自动启动的，但是第一次启动后，以后开机都是自启的，没有第一次启动之前，也是没有密码的。当你第一次启动MySQL服务器的时候，mysql自己就会自己做很多事情，其中之一重要的就是初始密码
+
+```sh
+# 启动 mysql 服务
+systemctl start mysqld.service
+
+# 查启动状态
+systemctl status mysqld.service
+# 显示 Active: active (running)，说明启动成功
+```
+
+查看初始密码
+
+启动之后密码就初始化好了，可以用 cat /var/log/mysqld.log 查看，找到root@localhost：xxx，xxx即登录密码
+
+登录MySQL
+
+登录进去是没有权限任何操作的，必须修改密码
+
+登录代码 mysql -u root -p  回车就让你输入密码
+
+```sh
+[root@localhost mysql]# mysql -uroot -p
+Enter password:       						# 这里输入密码
+```
+
+修改密码
+
+```sh
+mysql> set password for 'root'@'localhost'='密码'    //密码必须要符合要求，八位及以上，需要大小写、数字和特殊字
+mysql> set password for 'root'@'localhost'='xxxxxx';
+Query OK, 0 rows affected (0.00 sec)
+```
+
+到这里就安装完成了
+
+## Win下安装MySQL 5.7解压版
+
+[参考链接](https://www.cnblogs.com/FlyJeans/p/10658386.html)
+
+[下载5.7 免安装版](https://dev.mysql.com/downloads/mysql/5.7.html#downloads)
+
+解压并在根目录创建my.ini，我的是这个: D:\apps\mysql\mysql-5.7.25-winx64
+
+my.ini 内容:
+
+```ini
+[client]
+# 设置mysql客户端默认字符集
+default-character-set=utf8
+[mysqld]
+#设置3306端口
+port = 3306
+# 设置mysql的安装目录 这块换成自己解压的路径
+basedir=D:\\apps\\mysql\\mysql-5.7.20-winx64
+# 允许最大连接数
+max_connections=200
+# 服务端使用的字符集默认为8比特编码的latin1字符集
+character-set-server=utf8
+# 创建新表时将使用的默认存储引擎
+default-storage-engine=INNODB
+sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+[mysql]
+default-character-set=utf8
+```
+
+可以直接复制粘贴，主要修改下basedir后的路径，注意路径中为\而非\\
+
+进入mysql的bin目录
+
+以管理员的方式打开cmd命令窗口（直接打开cmd运行，可能会报错），并且进入到mysql安装目录的bin目录下
+
+```sh
+cd D:\apps\mysql\mysql-5.7.25-winx64\bin
+```
+
+初始化mysql
+
+```sh
+mysqld --initialize
+```
+
+此时应该没有任何提示
+
+::: warning
+
+mysqld --initialize会帮助你创建data文件夹并初始化mysql, 因此不要自己创建data文件夹
+
+网上很多教程建议自己新建一个空data文件夹，再在my.ini文件中增加一句：
+
+\# 设置mysql数据库的数据的存放目录
+
+datadir=D:\apps\mysql\mysql-5.7.20-winx64\data
+
+这样会导致服务无法启动
+
+:::
+
+安装mysql服务
+
+```sh
+mysqld -install
+```
+
+启动服务
+
+```sh
+net start mysql
+```
+
+第一次进入mysql会由 mysql initialize 初始化一个密码, 在data/\*.err这个文件中搜索password会看到生成的密码，或者找到root@localhost：xxx，xxx即登录密码
+
+注册环境变量与登录
+
+新建系统变量 MYSQL\_HOME，值为 "D:\apps\mysql\mysql-5.7.25-winx64"；
+
+在PATH环境变量最前面添加"%MYSQL\_HOME%\bin;" （注意有末尾分号）
+
+```sh
+mysql -u root -p
+```
+
+修改root密码
+
+进入后可以用如下命令修改，这里密码改为root：
+
+```sql
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'xxxxxx';
+```
+
+退出
+
+```sh
+mysql> quit
+```
+
+完成了!!!!
+
+## Win下安装MySQL 8.4.3解压版
+
+### 安装
+
+[下载MySQL](https://downloads.mysql.com/archives/community/)
+
+选择mysql-8.4.3-winx64.zip，解压，改为mysql-8.4.3，进入主目录mysql-8.4.3，创建配置文件my.ini：
+
+```ini
+[mysqld]
+# 设置3306端口
+port=3308
+# 设置mysql的安装目录   ----------是你的文件路径-------------
+basedir=D:\apps\mysql\mysql-8.4.3
+# 设置mysql数据库的数据的存放目录  ---------是你的文件路径data文件夹自行创建
+datadir=D:\apps\mysql\mysql-8.4.3\data
+# 允许最大连接数
+max_connections=200
+# 允许连接失败的次数。
+max_connect_errors=10
+# 服务端使用的字符集默认为utf8mb4
+character-set-server=utf8mb4
+# 创建新表时将使用的默认存储引擎
+default-storage-engine=INNODB
+[mysql]
+# 设置mysql客户端默认字符集
+default-character-set=utf8mb4
+[client]
+# 设置mysql客户端连接服务端时默认使用的端口
+port=3308
+default-character-set=utf8mb4
+
+```
+
+进入bin目录，执行初始化，注意控制台有个root@localhost：后面是默认密码，复制记住登录需要
+
+```sh
+mysqld --initialize --console
+```
+
+服务操作（管理员身份）及登录
+
+```sh
+#创建服务
+mysqld --install MySQL8
+#卸载服务
+sc delete MySQL8
+
+#启动服务
+net start MySQL8
+#停止服务
+net stop MySQL8
+
+#登录
+mysql -u root -p
+```
+
+改密码
+
+```sql
+mysql -u root -p
+
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'xxxxxx';
+
+#MySQL8改密码报错：ERROR 1524 (HY000) Plugin ‘mysql_native_password‘ is not loaded
+ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY 'xxxxxxxx';
+```
+
+### 问题一
+
+工具链接数据库出现Public Key Retrieval is not allowed，原因是需要使用ssl安全链接
+
+解决1，使用ssl，在服务器配置ssl证书等
+
+解决2，设置链接属性：allowPublicKeyRetrieval=true
+
+## 卸载重装MySQL5.x
+
+停止mysql进程及服务
+
+```sh
+net stop mysql
+mysqld -remove mysql
+```
+
+删除注册表的MYSQL服务
+
+HKEY\_LOCAL\_MACHINE\SYSTEM\ControlSet001\Services\Eventlog\Application\MySQL
+HKEY\_LOCAL\_MACHINE\SYSTEM\ControlSet002\Services\Eventlog\Application\MySQL
+HKEY\_LOCAL\_MACHINE\SYSTEM\CurrentControlSet\Services\EventLog\Application\MySQLD Service
+
+MYSQL8可能只有第三项
+
+删除data（非必要-如果还要用该文件重装到相同位置的话一定要删除）
+
+重启计算机
+
+```sh
+shutdown -r -t 0
+```
+
+重新安装
+
+## 参考链接
+
+[mysql-8.4.0解压版安装记录](https://www.cnblogs.com/chenyucong/p/18203408)
+
+[Win10系统下MySQL 8.0.20安装和配置超详细教程](https://blog.csdn.net/LB_AUTO/article/details/106041858#MySQL_2)
+
+[Windows版MySQL5.7及MySQL8解压版（如何卸载）](https://blog.csdn.net/xzzteach/article/details/140582768)
+
+---
+
+---
+url: /30.数据库/35.MySQL/30.MySQL笔记.md
+---
+
+## SQL语句
+
+**常用查看 show**
+
+```sql
+-- 选择要操作的数据库
+-- world:数据库名
+use world;
+
+-- 显示已存在的数据库列表
+show databases;
+
+-- 显示指定数据库下的表的信息
+show tables;
+
+-- 显示指定表的列的信息
+-- world.country:数据库名.表名
+show columns from world.country;
+
+-- 显示指定表的索引信息
+-- world.country:数据库名.表名
+show index from world.country;
+
+-- 显示指定数据库下的表的详细信息
+-- world:数据库名
+show table status from world;
+
+-- 显示指定数据库下的表名称以字母'c'开头的表的详细信息
+-- world:数据库名
+show table status from world like 'c%';
+
+-- 显示数据库表的结构，如：字段名，字段类型等
+-- world.country:数据库名.表名	或者desc
+describe world.country;
+
+
+-- 查看创建表的SQL语句
+-- demo.test：数据库名.表名
+show create table demo.test;
+
+-- 查看创建存储过程的SQL语句
+-- demo.test_proc：数据库名.存储过程名
+show create procedure demo.test_proc;
+
+-- 查看创建视图的SQL语句
+-- demo.test_view：数据库名.视图名
+show create view demo.test_view;
+
+-- 查看创建函数的SQL语句
+-- demo.test_fun：数据库名.函数名
+show create function demo.test_fun;
+
+-- 查看当前用户的数据库权限
+show grants;
+
+-- 查看指定用户的数据库权限
+-- admin@localhost:用户名@访问主机
+show grants for 'admin'@'localhost';        
+
+-- 查询数据库用户信息
+select * from mysql.user;
+
+-- 获取服务器版本信息
+SELECT VERSION();
+
+-- 获取当前数据库名 (或者返回空)
+SELECT DATABASE();
+
+-- 获取当前用户名
+SELECT USER();
+
+-- 获取服务器状态
+SHOW STATUS;
+
+-- 获取服务器配置变量
+SHOW VARIABLES;
+-- 例如：
+-- 查询自增长值的步长，即每次增加多少，默认为1。
+show variables like '%auto_increment%';
+-- 设置自增长值每次增加的数值，会影响所有数据表。
+set auto_increment_increment=3;
+-- 设置自增长值的起始值，会影响所有数据表。
+set auto_increment_offset=100;
+
+-- mysql运行在安全模式下时，非主键条件下是无法执行update或者delete命令的
+-- 查看安全模式状态
+show variables like '%sql_safe_updates%';
+-- 设置安全模式为关闭
+set sql_safe_updates=off;
+
+-- 获取最近一次向具有identity属性(即自增列)的表插入数据时对应的自增列的值，@@identity是系统定义的全局变量。
+select @@identity;
+
+-- LAST_INSERT_ID函数将返回当前连接自增列最新的 insert or update 操作生成的第一个记录的ID。
+-- 因为其基于Connection的，所以也是线程安全的。
+select LAST_INSERT_ID();
+```
+
+### 数据定义 DDL
+
+#### 数据类型
+
+**数值型**：
+
+| **类型**     | **大小** | **范围（有符号）**                                           | **范围（无符号）**                                           | **用途**        |
+| ------------ | -------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------------- |
+| TINYINT      | 1 字节   | (-128，127)                                                  | (0，255)                                                     | 小整数值        |
+| SMALLINT     | 2 字节   | (-32 768，32 767)                                            | (0，65 535)                                                  | 大整数值        |
+| MEDIUMINT    | 3 字节   | (-8 388 608，8 388 607)                                      | (0，16 777 215)                                              | 大整数值        |
+| INT或INTEGER | 4 字节   | (-2 147 483 648，2 147 483 647)                              | (0，4 294 967 295)                                           | 大整数值        |
+| BIGINT       | 8 字节   | (-9 233 372 036 854 775 808，9 223 372 036 854 775 807)      | (0，18 446 744 073 709 551 615)                              | 极大整数值      |
+| FLOAT        | 4 字节   | (-3.402 823 466 E+38，-1.175 494 351 E-38)，0，(1.175 494 351 E-38，3.402 823 466 351 E+38) | 0，(1.175 494 351 E-38，3.402 823 466 E+38)                  | 单精度 浮点数值 |
+| DOUBLE       | 8 字节   | (-1.797 693 134 862 315 7 E+308，-2.225 073 858 507 201 4 E-308)，0，(2.225 073 858 507 201 4 E-308，1.797 693 134 862 315 7 E+308) | 0，(2.225 073 858 507 201 4 E-308，1.797 693 134 862 315 7 E+308) | 双精度 浮点数值 |
+
+**字符串类型**
+
+| 类型       | 大小                | 用途                            |
+| ---------- | ------------------- | ------------------------------- |
+| CHAR       | 0-255字节           | 定长字符串                      |
+| VARCHAR    | 0-65535 字节        | 变长字符串                      |
+| TINYBLOB   | 0-255字节           | 不超过 255 个字符的二进制字符串 |
+| TINYTEXT   | 0-255字节           | 短文本字符串                    |
+| BLOB       | 0-65 535字节        | 二进制形式的长文本数据          |
+| TEXT       | 0-65 535字节        | 长文本数据                      |
+| MEDIUMBLOB | 0-16 777 215字节    | 二进制形式的中等长度文本数据    |
+| MEDIUMTEXT | 0-16 777 215字节    | 中等长度文本数据                |
+| LONGBLOB   | 0-4 294 967 295字节 | 二进制形式的极大文本数据        |
+| LONGTEXT   | 0-4 294 967 295字节 | 极大文本数据                    |
+
+**日和期时间类型**
+
+| 类型      | 大小  | 范围                                                         | 格式                | 用途                     |
+| --------- | ----- | ------------------------------------------------------------ | ------------------- | ------------------------ |
+| DATE      | 3字节 | 1000-01-01/9999-12-31                                        | YYYY-MM-DD          | 日期值                   |
+| TIME      | 3字节 | '-838:59:59'/'838:59:59'                                     | HH:MM:SS            | 时间值或持续时间         |
+| YEAR      | 1字节 | 1901/2155                                                    | YYYY                | 年份值                   |
+| DATETIME  | 8字节 | 1000-01-01 00:00:00/9999-12-31 23:59:59                      | YYYY-MM-DD HH:MM:SS | 混合日期和时间值         |
+| TIMESTAMP | 4字节 | 1970-01-01 00:00:00/2038结束时间是第 2147483647 秒，北京时间 2038-1-19 11:14:07，格林尼治时间 2038年1月19日 凌晨 03:14:07 | YYYYMMDD HHMMSS     | 混合日期和时间值，时间戳 |
+
+#### 建库 建表
+
+```sql
+-- 创建一个名为'test'的数据库
+create database test;
+
+-- 创建一个名为'test'的数据库，如果该数据库已存在则不创建，否则再创建
+-- 并指定默认字符集为'utf8'，字符校对集为'utf8_general_ci'
+create database if not exists test default charset utf8 collate utf8_general_ci;
+
+-- 删除名为'test'的数据库
+drop database test;
+
+-- 查询所有数据库
+Show databases;
+
+-- 使用数据库
+Use 数据库名;
+
+-- 更新数据库：
+ALTER DATABASE  数据库名 CHARATER SET=UTF8;(修改数据库编码)
+
+
+
+-- 创建一个名为'Student'的数据表，如果该数据表已存在则不创建，否则再创建
+-- engine:指定数据库引擎为'InnoDB'
+-- auto_increment:指定自增列的起始值为1
+create table if not exists Student
+(
+    ID        int        not null    auto_increment,        #自动增长列
+    StuNo    varchar(32)     not null,
+    StuName    varchar(8)        not null,
+    StuSex        varchar(8)        null,
+    StuBirthday        tinyint     null,
+    CreateTime        datetime     null,
+    primary key (ID)    #指定主键列
+)
+engine=InnoDB auto_increment=1 default charset=utf8 collate=utf8_general_ci;
+
+-- 删除数据表 student，该操作会删除所有数据包括表结构、视图、索引、约束等。
+drop table test.student;
+
+-- 删除数据表中的所有数据，该操作会删除表中所有的数据，但是会保留表结构、视图、索引、约束等。
+truncate table test.student;
+
+
+-- 创建一个临时表，临时表的创建与数据表的创建类似，只不过需要添加关键字 temporary。
+-- 临时表的作用域为当前会话，即当前连接可见，当断开当前连接时会自动销毁，当然也可以手动删除，删除方式与数据表一样。
+create temporary table Product
+(
+    ProName     varchar(32)     not null,
+    Price        decimal(10,3)    not null     default 0.000
+);
+
+-- 复制指定数据表的表结构到创建的新表。
+create table test.StudentBak like test.student;
+
+-- 复制指定数据表的表结构及所有数据到创建的新表。
+create table test.StudentBak select * from test.student;
+```
+
+#### 表的修改
+
+```sql
+-- 创建表：
+CREATE TABLE [IF EXISTS] 表名(列名 类型,列名 类型);
+
+-- 查看表结构：
+DESC 表名;
+
+-- 查看当前数据库所有的表：
+SHOW TABLES;
+
+-- 删除表：
+DROP TABLE 表名;
+
+-- 查看指定表的创建语句：
+SHOW CREATE TABLE 表名; (了解)
+
+-- 修改表（前缀）：
+ALTER TABLE 表名
+
+-- 添加列：
+ALTER TABLE 表名 ADD (
+  列名 列类型,
+  列名 列类型,
+  ...
+);
+
+-- 修改列类型(如果被修改的列已存在数据，那么新的类型可能会影响到已存在数据)：
+ALTER TABLE 表名 MODIFY 列名 列类型;
+
+-- 修改列名：
+ALTER TABLE 表名 CHANGE 原列名 新列名 列类型;
+
+-- 删除列：
+ALTER TABLE 表名 DROP 列名;
+
+-- 修改表名称：
+ALTER TABLE 原表名 RENAME TO 新表名;
+
+-- 向指定数据表添加一列，默认添加到数据表字段的末尾。
+alter table test.student add column1 varchar(10) null;
+
+-- 向指定数据表添加一列，并设置默认值为：0
+alter table demo.chinesecharinfo add column IsUseful tinyint unsigned not null default 0;
+
+-- first关键字用于把添加的列设置为第一列。
+alter table test.student add column1 varchar(10) null first;
+
+-- after关键字用于把添加的列设置在指定列的后面，StuSex为指定列的列名。
+alter table test.student add column1 varchar(10) null after StuSex;
+
+-- 删除指定列名的列，当数据表仅剩一个字段时，无法进行删除。
+alter table test.student drop column1;
+
+-- 修改指定列的数据类型，并设置该列位于指定列名的列之后。
+alter table test.student modify column1 char(10) null after CreateTime;        -- 关键字column可省略
+alter table test.student modify column column1 char(10) null after CreateTime;
+
+-- 修改指定列的列名和数据类型，并设置该列位于指定列名的列之后。
+-- column1:为原列名
+-- column2:为新的列名
+alter table test.student change column1 column2 varchar(10) null after CreateTime;
+
+-- 修改指定列的默认值。
+alter table test.student alter column2 set default '123';
+
+-- 删除指定列的默认值。
+alter table test.student alter column2 drop default;
+
+-- 修改数据表的存储引擎。
+alter table test.student engine = myisam;
+alter table test.student engine = InnoDB;
+
+-- 修改数据表的自增长值的起始值。
+alter table test.student auto_increment=10;
+
+-- 重建自增长列，当删除数据过多，自增长列的值比较混乱时可以使用，但是重建时如果有新的数据插入，有可能会出现混乱。
+alter table test.student drop ID;
+alter table test.student add ID int not null auto_increment first;
+alter table test.student add primary key(ID);
+
+-- 修改数据表的表名称。
+alter table test.student rename to test.StudentBak;
+```
+
+#### 自动更新时间
+
+```sql
+# 添加 创建 更新 时间字段
+ALTER TABLE `表名`
+ADD COLUMN `create_time`  datetime NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `最后一个列名`,
+ADD COLUMN `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `create_time`;
+
+#执行后, 会批量更新 现有数据全部自动更新为当前时间,  新插入的数据时候自动更新插入的时间.
+
+#修改已存在字段.
+# 添加 创建 更新 时间字段
+ALTER TABLE `表名`
+MODIFY COLUMN `create_time`  datetime NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `create字段前面一个字段名`,
+MODIFY COLUMN `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `create_time`;
+```
+
+### 数据管理 DML
+
+#### 事务
+
+**事务特性**：原子性、一致性、隔离性、持久性
+
+**隔离级别**：读未提交、读已提交、可重复读、串行化
+
+| 隔离级别                     | 脏读   | 不可重复 | 读幻读 |
+| ---------------------------- | ------ | -------- | ------ |
+| 未提交读（Read uncommitted） | 可能   | 可能     | 可能   |
+| 已提交读（Read committed）   | 不可能 | 可能     | 可能   |
+| 可重复读（Repeatable read）  | 不可能 | 不可能   | 可能   |
+| 可串行化（Serializable ）    | 不可能 | 不可能   | 不可能 |
+
+```sql
+-- 设置事务隔离级别，只对下一个事务有效。
+set transaction isolation level {事务隔离级别};
+
+-- 设置事务隔离级别，对当前会话的事务有效。
+set session transaction isolation level {事务隔离级别};
+
+-- 设置事务隔离级别，对后面建立MySQL连接的事务有效。
+set global transaction isolation level {事务隔离级别};
+
+-- 事务的隔离级别
+read uncommitted(读取未提交):
+-- 该级别引发的问题是脏读，会读取到其他事务未提交的数据。
+
+read committed(读取已提交):
+-- 该级别引发的问题是不可重复读，即设置为该级别的事务只能读取到其他事务已经提交的数据，未提交的数据不能读取，会造成多次查询的结果不一致。
+
+repeatable read(可重复读):
+-- 该级别引发的问题是幻读，即当用户修改某一范围内的数据行时，另一个事务又在该范围内插入了新的行，当用户再次读取该范围内的数据时，会发现有新的数据行没有被修改。
+-- 该级别是MySQL数据库默认的事务隔离级别。注意：该级别不会对事务查询到的行加行锁，也就是该事务查询到的行，其他事务依然能进行修改，但是能保证数据的一致性。
+
+serializable(可串行化):
+-- 该级别是MySQL中事务隔离级别最高的，该级别会锁住事务中操作的整张表，因此不会出现以上三个级别的问题。但是这种隔离级别并发性极地，开发中很少会用到。
+```
+
+**事务操作**
+
+```sql
+-- 关闭自动提交事务
+set autocommit=0;
+-- 开启自动提交事务，默认为开启。
+set autocommit=1;
+
+-- 开启事务
+start TRANSACTION; -- 推荐使用
+BEGIN;
+BEGIN WORK;
+
+-- commit用于提交事务，只有当自动提交事务被关闭时需要使用。
+commit
+-- rollback用于回滚事务，撤销对于数据库所做的未提交的操作。
+ROLLBACK;
+```
+
+**还原点**
+
+```sql
+-- 还原点
+
+show variables like '%autocommit%'; -- 自动提交事务是开启的
+set autocommit=1;
+
+insert into testdemo values(5,5,5);
+-- 创建保存点
+savepoint s1; 
+
+insert into testdemo values(6,6,6);
+savepoint s2;
+
+insert into testdemo values(7,7,7);
+savepoint s3;
+
+-- 用于删除一个保存点，如果指定的保存点不存在，将会抛出一个异常。
+release savepoint s3;
+
+select * from testdemo;
+
+-- 把事务回滚到指定的保存点。
+rollback to savepoint s2;
+
+rollback;
+```
+
+#### 增删改
+
+添加
+
+```sql
+INTERT INTO 表名(列名1,列名2, ...) VALUES(列值1, 列值2, ...);
+/*
+在表名后给出要插入的列名，其他没有指定的列等同与插入null值。所以插入记录总是插入一行，不可能是半行。
+在VALUES后给出列值，值的顺序和个数必须与前面指定的列对应
+*/
+
+INTERT INTO 表名 VALUES(列值1, 列值2)
+/*没有给出要插入的列，那么表示插入所有列。
+值的个数必须是该表列的个数。
+值的顺序，必须与表创建时给出的列的顺序相同。
+*/
+
+/* 插入所有列
+在数据库中所有的字符串类型，必须使用单引，不能使用双引！
+日期类型也要使用单引！
+*/
+INSERT INTO stu(
+number, name, age, gender
+)
+VALUES(
+'ITCAST_0001', 'zhangSan', 28, 'male'
+);
+
+# 插入部分列，没有指定的列默认为NULL值
+INSERT INTO stu(
+number, name
+) VAKLUES(
+'ITCAST_0002', 'liSi'
+)
+
+# 不给出插入列，那么默认为插入所有列！值的顺序要与创建表时列的顺序相同
+INSERT INTO stu VALUES(
+'ITCAST_0003', 'wangWu', 82, 'female'
+);
+
+-- 向数据表中插入数据
+insert into student(StuNo,StuName,StuSex,Stubirthday,CreateTime)
+select 'A001','小张','男',str_to_date('1988-06-09','%Y-%m-%d'),current_timestamp() union all 
+select 'A002','小红','女',str_to_date('1990-08-10','%Y-%m-%d'),current_timestamp() 
+
+-- 在插入重复的数据时，会直接跳过重复数据的插入。在有自增列或主键的数据表中不起作用，因为自增列和主键都具有唯一性。
+insert ignore into test.student(stuno,stuname,stusex,stubirthday,createtime)
+values ('A003','小鱼','女','1991-07-07',current_timestamp());
+
+```
+
+修改
+
+* UPDATE 表名 SET 列名1=列值1, 列名2=列值2, ... \[WHERE 条件]
+* 条件(条件可选的)：
+  条件必须是一个boolean类型的值或表达式：
+
+```sql
+UPDATE t_person SET gender='男', age=age+1 WHERE sid='1';
+运算符：=、!=、<>、>、<、>=、<=、BETWEEN...AND、IN(...)、IS NULL、NOT、OR、AND
+UPDATE stu SET name='xxx', age=102
+WHERE age >= 18 AND age <= 80
+WHERE age BETWEEN 18 AND 80
+WHERE name='zhangSan' OR name='liSi'
+WHERE name IN ('zhangSan', 'liSi')
+WHERE age IS NULL, 不能使用等号
+WHERE age IS NOT NULL
+```
+
+删除
+
+```sql
+DELETE FROM 表名 [WHERE 条件];
+TRUNCATE TABLE 表名;			#注意：TRUNCATE是DDL语句，它是先删除drop该表，再create该表，而且无法回滚！
+```
+
+### 数据控制 DCL
+
+#### root 密码
+
+```sql
+修改root用户的密码：
+/*登录mysql*/
+mysql -uroot -pxxx
+/*切换数据库*/
+use mysql
+/*修改root用户的密码*/
+update user set password=password('yyy') where user='root';
+```
+
+如果你忘记了root用户的密码，那么你就无法登录mysql，也就不能修改密码了。这时登录mysql就比较麻烦：
+打开一个窗口，执行：mysqld --skip-grant-tables；
+这时再开一个窗口来登录mysql：mysql -u root；
+然后使用上面相同的方式来修改root用户的密码。
+
+```sh
+#格式：mysqladmin -u用户名 -p旧密码 password 新密码
+#1、给root加个密码xxx。
+#首先在DOS下进入目录mysql\bin，然后键入以下命令
+mysqladmin -u root -password xxx
+#注：因为开始时root没有密码，所以-p旧密码一项就可以省略了。
+#2、再将root的密码改为djg345。
+mysqladmin -u root -p xxx password yyy
+```
+
+#### 用户增删 授权
+
+```sql
+-- 创建用户
+CREATE USER 用户名@IP地址 IDENTIFIED BY '密码'; -- 用户只能在指定的IP地址上登录
+CREATE USER 用户名@'%' IDENTIFIED BY '密码'; -- 用户可以在任意IP地址上登录
+
+-- 创建一个新的用户，并设置登录密码
+-- test:用户名;localhost:本地主机访问(如果需要其他任意主机访问，请使用通配符'%');xxx:用户密码;
+create user 'test'@'localhost' identified by 'xxx';
+
+-- 创建一个新的用户，不指定登录密码，即不需要登录密码
+create user 'test01'@'localhost';
+
+-- 查看指定用户的权限
+SHOW GRANTS FOR 用户名@IP地址
+
+-- 删除指定的用户
+drop user 'test01'@'localhost';
+
+-- 修改用户名
+-- test@localhost:要修改的用户名和访问主机
+-- test@%:修改为的用户名和访问主机
+rename user 'test'@'localhost' to 'test'@'%';
+
+-- 修改用户密码
+-- test@localhost:要修改的用户名和访问主机
+-- xxx:新的用户密码
+set password for 'test'@'localhost' = Password('xxx');
+
+-- 授予指定用户'test'对于'world'数据库下'country'表的查询权限
+-- select:查询权限;world.country:数据库名.表名;'test'@'localhost':用户名@访问主机;
+grant select on world.country to 'test'@'localhost';
+-- 立即启用修改(默认再次登录才会生效)
+flush privileges;
+
+-- 撤销指定用户'test'对于'world'数据库下'country'表的查询权限
+-- select:查询权限;world.country:数据库名.表名;'test'@'localhost':用户名@访问主机;
+revoke select on world.country from 'test'@'localhost';
+-- 立即启用修改(默认再次登录才会生效)
+flush privileges;
+
+-- 授予指定用户'test'对于'world'数据库下所有表的查询、新增、修改、删除权限
+grant select,insert,update,delete on world.* to 'test'@'localhost';
+
+-- 撤销指定用户'test'对于'world'数据库下所有表的查询、新增、修改、删除权限
+revoke select,insert,update,delete on world.* from 'test'@'localhost';
+
+-- 授予指定用户'test'对于'world'数据库下所有表的表结构进行创建、修改、删除权限
+grant create,alter,drop on world.* to 'test'@'localhost';
+
+-- 撤销指定用户'test'对于'world'数据库下所有表的表结构进行创建、修改、删除权限
+revoke create,alter,drop on world.* from 'test'@'localhost';
+
+-- 授予指定用户'test'对于'world'数据库下所有存储过程的执行权限，并且该用户有权限转授予其他用户
+grant execute on world.* to 'test'@'localhost' with grant option;
+
+-- 撤销指定用户'test'对于'world'数据库下所有存储过程的执行权限，转授予权限一并撤销
+revoke execute on world.* from 'test'@'localhost';
+
+-- 给用户分派指定数据库上的所有权限
+GRANT ALL ON 数据库.* TO 用户名@IP地址;
+
+-- 撤销用户'test'对于'world'数据库下的所有执行权限
+revoke all on world.* from 'test'@'%';
+```
+
+### 数据查询 DQL
+
+查询不会修改数据库表记录！
+
+#### 基本查询
+
+**字段（列）**
+
+查询所有列
+
+```sql
+SELECT * FROM 表名;
+SELECT * FROM emp;
+-- 其中“*”表示查询所有列
+
+-- MySQL的WHERE子句默认是不区分大小写的，如果需要区分大小写，就要在字段前加上关键字 binary
+select * from student where stuno='a001';    #'1', 'A001', '小张', '男', '1988-06-09', '2018-01-12 12:17:00'
+select * from student where binary stuno='a001';    #null
+
+```
+
+查询指定列
+
+```sql
+SELECT 列1 [, 列2, ... 列N] FROM 表名;
+SELECT empno, ename, sal, comm FROM 表名;
+```
+
+完全重复的记录只一次
+
+```sql
+当查询结果中的多行记录一模一样时，只显示一行。一般查询所有列时很少会有这种情况，但只查询一列（或几列）时，这总可能就大了！
+SELECT DISTINCT * | 列1 [, 列2, ... 列N] FROM 表名;
+SELECT DISTINCT sal FROM emp;
+-- 保查询员工表的工资，如果存在相同的工资只显示一次！
+```
+
+列运算
+
+```sql
+-- 数量类型的列可以做加、减、乘、除运算
+SELECT sal*1.5 FROM emp;
+SELECT sal+comm FROM emp;
+
+-- 字符串类型可以做连续运算
+SELECT CONCAT('$', sal) FROM emp;
+
+-- 转换NULL值
+-- 有时需要把NULL转换成其它值，例如com+1000时，如果com列存在NULL值，那么NULL+1000还是NULL，而我们这时希望把NULL当前0来运算。
+SELECT IFNULL(comm, 0)+1000 FROM emp;
+-- IFNULL(comm, 0)：如果comm中存在NULL值，那么当成0来运算。
+
+-- 给列起别名
+-- 你也许已经注意到了，当使用列运算后，查询出的结果集中的列名称很不好看，这时我们需要给列名起个别名，这样在结果集中列名就显示别名了
+SELECT IFNULL(comm, 0)+1000 AS 奖金 FROM emp;
+-- 其中AS可以省略
+```
+
+**条件控制**
+
+条件查询
+
+与前面介绍的UPDATE和DELETE语句一样，SELECT语句也可以使用WHERE子句来控制记录。
+
+```sql
+SELECT empno,ename,sal,comm FROM emp WHERE sal > 10000 AND comm IS NOT NULL;
+
+SELECT empno,ename,sal FROM emp WHERE sal BETWEEN 20000 AND 30000;  #（between：在……之间）
+
+SELECT empno,ename,job FROM emp WHERE job IN ('经理', '董事长');
+```
+
+模糊查询
+
+```sql
+-- 当你想查询姓张，并且姓名一共两个字的员工时，这时就可以使用模糊查询
+
+SELECT * FROM emp WHERE ename LIKE '张_';
+-- 模糊查询需要使用运算符：LIKE，其中_匹配一个任意字符，注意，只匹配一个字符而不是多个。
+-- 上面语句查询的是姓张，名字由两个字组成的员工。
+SELECT * FROM emp WHERE ename LIKE '___'; 	/*姓名由3个字组成的员工*/
+
+-- 如果我们想查询姓张，名字几个字可以的员工时就要使用“%”了。
+SELECT * FROM emp WHERE ename LIKE '张%';
+-- 其中%匹配0~N个任意字符，所以上面语句查询的是姓张的所有员工。
+
+SELECT * FROM emp WHERE ename LIKE '%阿%';
+-- 千万不要认为上面语句是在查询姓名中间带有阿字的员工，因为%匹配0~N个字符，所以姓名以阿开头和结尾的员工也都会查询到。
+
+SELECT * FROM emp WHERE ename LIKE '%';
+-- 这个条件等同与不存在，但如果姓名为NULL的查询不出来！
+```
+
+正则表达式
+
+```sql
+-- regexp:用于设置正则表达式匹配项，类似于模糊匹配like。
+-- 表示查询名称以字符 'A'(不区分大小写)开头的记录。
+select * from world.city where Name regexp '^A';
+
+-- 表示查询名称中包含字符串 'mer' 的记录。
+select * from world.city where Name regexp 'mer';
+
+-- 表示查询名称以字符 'a' 或字符 'b' 开头的记录或者以字符 'r' 结尾的记录。
+select * from world.city where Name regexp '^[ab]|r$';
+```
+
+#### 排序
+
+升序
+
+```sql
+SELECT * FROM WHERE emp ORDER BY sal ASC;
+-- 按sal排序，升序！
+-- 其中ASC是可以省略的
+```
+
+降序
+
+```sql
+SELECT * FROM WHERE emp ORDER BY comm DESC;
+-- 按comm排序，降序！
+-- 其中DESC不能省略
+```
+
+使用多列作为排序条件
+
+```sql
+SELECT * FROM WHERE emp ORDER BY sal ASC, comm DESC;
+-- 使用sal升序排，如果sal相同时，使用comm的降序排
+```
+
+#### 聚合函数
+
+聚合函数用来做某列的纵向运算。
+
+```sql
+# COUNT 计数
+SELECT COUNT(*) FROM emp;
+-- 计算emp表中所有列都不为NULL的记录的行数
+SELECT COUNT(comm) FROM emp;
+-- 计算emp表中comm列不为NULL的记录的行数
+
+# MAX 最大值
+SELECT MAX(sal) FROM emp;
+-- 查询最高工资
+
+# MIN 最小值
+SELECT MIN(sal) FROM emp;
+-- 查询最低工资
+
+# SUM 算总和
+SELECT SUM(sal) FROM emp;
+-- 查询工资合
+
+# AVG 算平均值
+SELECT AVG(sal) FROM emp;
+-- 查询平均工资
+```
+
+#### 分组查询
+
+```sql
+-- 分组查询是把记录使用某一列进行分组，然后查询组信息。
+-- 例如：查看所有部门的记录数。
+SELECT deptno, COUNT(*) FROM emp GROUP BY deptno;
+-- 使用deptno分组，查询部门编号和每个部门的记录数
+SELECT job, MAX(SAL) FROM emp GROUP BY job;
+-- 使用job分组，查询每种工作的最高工资
+
+-- 组条件
+-- 以部门分组，查询每组记录数。条件为记录数大于3
+SELECT deptno, COUNT(*) FROM emp GROUP BY deptno HAVING COUNT(*) > 3;
+```
+
+#### Limit子句（方言）
+
+```sql
+-- limit:用于设置返回的记录数。
+-- offset:用于设置select语句开始查询的数据偏移量，默认为零。
+-- 表示只取前10条数据
+select * from world.city limit 10;
+
+-- 表示跃过5条，从第6条数据开始取10条数据。
+select * from world.city limit 10 offset 5;
+
+-- 表示从第10条开始取5条数据。
+select * from world.city limit 10,5;
+
+-- limit取值: (当前页-1) * 每页记录数
+```
+
+## 完整性约束
+
+### 主键约束
+
+**非空，唯一，被引用（作为外键时）**
+
+* 当表的某一列被指定为主键后，该列就不能为空，不能有重复值出现。
+* 创建表时指定主键的两种方式：
+
+```sql
+CREATE TABLE stu(
+    sid	    CHAR(6) PRIMARY KEY,
+    sname	VARCHAR(20),
+    age		INT,
+    gender	VARCHAR(10) 
+);
+```
+
+指定sid列为主键列，即为sid列添加主键约束
+
+```sql
+CREATE TABLE stu(
+    sid	    CHAR(6),
+    sname	VARCHAR(20),
+    age		INT,
+    gender	VARCHAR(10),
+    PRIMARY KEY(sid)
+);
+
+```
+
+指定sid列为主键列，即为sid列添加主键约束
+
+```sql
+-- 修改表时指定主键：
+ALTER TABLE stu ADD PRIMARY KEY(sid);
+
+-- 删除主键：
+ALTER TABLE stu DROP PRIMARY KEY;
+```
+
+### 主键自增长
+
+* 因为主键列的特性是：必须唯一、不能为空，所以我们通常会指定主键类为整型，然后设置其自动增长，这样可以保证在插入数据时主键列的唯一和非空特性。
+* 创建表时指定主键自增长
+
+```sql
+CREATE TABLE stu(
+	sid INT PRIMARY KEY AUTO_INCREMENT,
+	sname	VARCHAR(20),
+	age		INT,
+	gender	VARCHAR(10)
+);
+```
+
+* 修改表时设置主键自增长：ALTER TABLE stu CHANGE sid sid INT AUTO\_INCREMENT;
+* 修改表时删除主键自增长：ALTER TABLE stu CHANGE sid sid INT;
+* 测试主键自增长：
+
+```sql
+INSERT INTO stu VALUES(NULL, 'zhangSan',23,'male');
+INSERT INTO stu(sname,age,gender) VALUES('zhangSan',23,'male');
+```
+
+### 非空约束
+
+* 因为某些列不能设置为NULL值，所以可以对列添加非空约束。
+* 例如：
+
+```sql
+CREATE TABLE stu(
+	sid INT PRIMARY KEY AUTO_INCREMENT,
+	sname	VARCHAR(20) NOT NULL,
+	age		INT,
+	gender	VARCHAR(10)
+);
+```
+
+> 对sname列设置了非空约束
+
+### 唯一约束
+
+* 某些列不能设置重复的值，所以可以对列添加唯一约束。
+* 例如：
+
+```sql
+CREATE TABLE stu(
+	sid INT PRIMARY KEY AUTO_INCREMENT,
+	sname	VARCHAR(20) NOT NULL UNIQUE,
+	age		INT,
+	gender	VARCHAR(10)
+);
+```
+
+> 对sname列设置了非空约束
+
+### 概念模型
+
+对象模型：可以双向关联，而且引用的是对象，而不是一个主键！
+
+关系模型：只能多方引用一方，而且引用的只是主键，而不是一整行记录。
+
+对象模型：在java中是domain！！！例如：User、Student
+
+is a
+
+has a(关联)
+
+> 1对1
+> 1对多
+> 多对多
+> use a
+
+关系模型：在数据库中表！！！
+
+当我们要完成一个软件系统时，需要把系统中的实体抽取出来，形成概念模型。
+
+例如部门、员工都是系统中的实体。概念模型中的实体最终会成为Java中的类、数据库中表。
+
+实体之间还存在着关系，关系有三种：
+
+* 1对多：例如每个员工都从属一个部门，而一个部门可以有多个员工，其中员工是多方，而部门是一方。
+* 1对1：例如老公和老婆就是一对一的关系，一个老公只能有一个老婆，而一个老婆只能有一个老公。
+* 多对多：老师与学生的关系就是多对多，一个老师可以有多个学生，一个学生可以有多个老师。
+
+概念模型在Java中成为实体类（javaBean）
+类就使用成员变量来完成关系，一般都是双向关联！
+多对一双向中关联，即员工关联部门，部门也关联员工
+
+```java
+class Employee {//多方关联一方
+     ...
+     private Department department;
+}
+class Department {//一方关联多方
+     ...
+     private List<Employee> employees;
+}
+
+class Husband {
+     ...
+     private Wife wife;
+}
+class Wife {
+     ...
+     private Husband
+}
+
+class Student {
+     ...
+     private List<Teacher> teachers
+}
+class Teacher {
+     ...
+     private List<Student> students;
+}
+```
+
+### 外键约束
+
+* 外键必须是另一表的主键的值(外键要引用主键！)
+* 外键可以重复
+* 外键可以为空
+* 一张表中可以有多个外键！
+
+概念模型在数据库中成为表
+数据库表中的多对一关系，只需要在多方使用一个独立的列来引用1方的主键即可
+
+```sql
+/*员工表*/
+create talbe emp (
+    empno int primary key,/*员工编号*/
+    ...
+    deptno int/*所属部门的编号*/
+);
+
+/*部门表*/
+create table dept (
+    deptno int  primary key,/*部门编号*/
+    ...
+);
+```
+
+emp表中的deptno列的值表示当前员工所从属的部门编号。也就是说emp.deptno必须在dept表中是真实存在！
+
+但是我们必须要去对它进行约束，不然可能会出现员工所属的部门编号是不存在的。这种约束就是外键约束。
+
+我们需要给emp.deptno添加外键约束，约束它的值必须在dept.deptno中存在。外键必须是另一个表的主键！
+
+语法：CONSTRAINT 约束名称 FOREIGN KEY(外键列名) REFERENCES 关联表(关联表的主键)
+
+创建表时指定外键约束
+
+```sql
+create talbe emp (
+    empno int primary key,
+    ...
+    deptno int,
+    CONSTRAINT fk_emp FOREIGN KEY(mgr) REFERENCES emp(empno)  
+);
+```
+
+修改表时添加外键约束
+
+```sql
+ALERT TABLE emp
+ADD CONSTRAINT fk_emp_deptno FOREIGN KEY(deptno) REFERENCES dept(deptno);
+```
+
+修改表时删除外键约束
+
+```sql
+ALTER TABLE emp
+DROP FOREIGN KEY fk_emp_deptno;/*约束名称*/
+```
+
+### 数据库一对一关系
+
+在表中建立一对一关系比较特殊，需要让其中一张表的主键，即是主键又是外键。
+
+```sql
+create table husband(
+    hid int PRIMARY KEY,
+    ...
+);
+create table wife(
+    wid int PRIMARY KEY,
+    ...
+    ADD CONSTRAINT fk_wife_wid FOREIGN KEY(wid) REFERENCES husband(hid)
+);
+```
+
+其中wife表的wid即是主键，又是相对husband表的外键！
+
+husband.hid是主键，不能重复！
+
+wife.wid是主键，不能重复，又是外键，必须来自husband.hid。
+
+所以如果在wife表中有一条记录的wid为1，那么wife表中的其他记录的wid就不能再是1了，因为它是主键。
+
+同时在husband.hid中必须存在1这个值，因为wid是外键。这就完成了一对一关系。
+
+从表的主键即是外键！
+
+### 数据库多对多关系
+
+在表中建立多对多关系需要使用中间表，即需要三张表，在中间表中使用两个外键，分别引用其他两个表的主键。
+
+```sql
+create table student(
+    sid int PRIMARY KEY,
+    ...
+);
+create table teacher(
+    tid int PRIMARY KEY,
+    ...
+);
+
+create table stu_tea(
+    sid int,
+    tid int,
+    ADD CONSTRAINT fk_stu_tea_sid FOREIGN KEY(sid) REFERENCES student(sid),
+    ADD CONSTRAINT fk_stu_tea_tid FOREIGN KEY(tid) REFERENCES teacher(tid)
+);
+```
+
+这时在stu\_tea这个中间表中的每条记录都是来说明student和teacher表的关系
+
+例如在stu\_tea表中的记录：sid为1001，tid为2001，这说明编号为1001的学生有一个编号为2001的老师
+
+sid    tid
+
+101    201 /*编号为101的学生有一个编号为201的老师*/
+
+101    202 /*编号为101的学生有一个编号为202的老师*/
+
+101    203 /*编号为101的学生有一个编号为203的老师*/
+
+102    201 /*编号为102的学生有一个编号为201的老师*/
+
+102    204 /*编号为102的学生有一个编号为204的老师*/
+
+## 乱码问题
+
+**查看 MySQL 数据库编码**
+
+* SHOW VARIABLES LIKE 'char%';
+
+**编码解释**
+
+* character\_set\_client：MySQL使用该编码来解读客户端发送过来的数据，例如该编码为UTF8，那么如果客户端发送过来的数据不是UTF8，那么就会出现乱码
+* character\_set\_results：MySQL会把数据转换成该编码后，再发送给客户端，例如该编码为UTF8，那么如果客户端不使用UTF8来解读，那么就会出现乱码
+  其它编码只要支持中文即可，也就是说不能使用latin1
+
+### 控制台乱码问题
+
+* 插入或修改时出现乱码：
+
+> 这时因为cmd下默认使用GBK，而character\_set\_client不是GBK的原因。我们只需让这两个编码相同即可。
+> 因为修改cmd的编码不方便，所以我们去设置character\_set\_client为GBK即可。
+
+* 查询出的数据为乱码：
+
+> 这是因为character\_set\_results不是GBK，而cmd默认使用GBK的原因。我们只需让这两个编码相同即可。
+> 因为修改cmd的编码不方便，所以我们去设置character\_set\_results为GBK即可。
+
+* 设置变量的语句：
+
+> set character\_set\_client=gbk;
+> set character\_set\_results=gbk;
+
+注意，设置变量只对当前连接有效，当退出窗口后，再次登录mysql，还需要再次设置变量。
+为了一劳永逸，可以在my.ini中设置：
+设置default-character-set=gbk即可。
+
+### 指定默认编码
+
+我们在安装MySQL时已经指定了默认编码为UTF8，所以我们在创建数据库、创建表时，都无需再次指定编码。
+为了一劳永逸，可以在my.ini中设置：
+设置character-set-server=utf8即可。
+
+character\_set\_client     | utf8 --> mysql把我们客户端传递的数据都当成是utf8！一是给它传递utf8，二是如果我们传递的是gbk，那么需要修改这个变量为gbk
+character\_set\_connection | utf8
+character\_set\_database   | utf8
+character\_set\_results    | utf8 --> mysql发送给客户端的数据都是utf8的。一是客户端用utf8编码，二是如果客户端使用gbk来编码，那么需要修改这个变量为gbk的。
+character\_set\_server     | utf8
+character\_set\_system     | utf8
+
+***
+
+character\_set\_client=utf8，无论客户端发送的是什么编码的数据，mysql都当成是utf8的数据！
+
+> 若客户端发送的是GBK
+> 服务器会当成utf8对待
+> 总结：必然乱码！
+
+处理问题的手段有两种；
+
+> 让客户端发送utf8的数据(行不通)
+> 把character\_set\_client修改为gbk
+> set character\_set\_client=gbk; --> 只在当前窗口内有效，也就是说，关闭窗口后，再打开，又回到utf8了。
+
+character\_set\_results=utf8，把数据用什么编码发送给客户端！
+
+> 若服务器发送给客户端的是utf8的数据
+> 客户端会把它当成gbk，因为我们的小黑屏，只能显示gbk
+> 总结：必然乱码！
+
+处理问题的手段有两种：
+
+> 让服务器发送gbk的数据：set character\_set\_results=gbk
+> 让小黑屏使用utf8来解读（行不通）
+
+my.ini
+在总配置文件中进行配置，可以一劳永逸
+
+```ini
+[client]
+port=3306
+[mysql]
+default-character-set=gbk /*它可以一劳永逸！它可以修改三个变量：client、results、connection*/
+```
+
+目前使用字符串设置：
+
+```ini
+[client]
+default-character-set=utf8 
+[mysql]
+default-character-set=utf8
+[mysqld]
+character-set-server=utf8
+```
+
+## 数据库字符校对集
+
+字符校对集，即排序规则，在某个字符集的情况下，字符集的排列顺序应该是什么，称之为校对集。
+
+```sql
+-- 查看所有的字符校对集
+-- 后缀为_bin:表示基于二进制编码的直接比较
+-- 后缀为_ci:表示对大小写不敏感的比较
+-- 后缀为_cs:表示对大小写敏感的比较
+show collation;
+```
+
+## 备份和恢复数据
+
+数据库 --> sql语句
+sql语句 --> 数据库
+
+1. 数据库导出SQL脚本(备份数据库内容，并不是备份数据库！)
+
+```sh
+mysqldump –u用户名 –p密码 数据库名>生成的脚本文件路径
+例如：
+mysqldump -uroot -p123 mydb1>C：\mydb1.sql  
+(与mysql.exe和mysqld.exe一样, 都在bin目录下)
+```
+
+> 注意，不要打分号，不要登录mysql，直接在cmd下运行
+> 注意，生成的脚本文件中不包含create database语句
+
+2. 执行SQL脚本
+   第一种方式
+
+```sh
+mysql -u用户名 -p密码 数据库<脚本文件路径
+例如：先删除mydb1库，再重新创建mydb1库
+mysql -uroot -p123 mydb1<C：\mydb1.sql
+```
+
+> 注意，不要打分号，不要登录mysql，直接在cmd下运行
+
+第二种方式
+
+```sh
+登录mysql
+source SQL脚本路径
+例如：
+先删除mydb1库，再重新创建mydb1库
+切换到mydb1库
+source c：\mydb1.sql
+```
+
+示例：
+数据库 --> sql：备份
+sql --> 数据库：恢复
+
+```sh
+mysqldump -uroot -p123 mydb3>c：/a.sql --备份
+mysql -uroot -p123 mydb3<c：/a.sql --恢复
+source c：/a.sql --恢复
+```
+
+## 多表查询
+
+SQL语句指令顺序：
+
+```sql
+select * 
+from emp, dept, (select * from emp)
+where
+group by
+having
+order by
+limit 
+```
+
+### 合并结果集
+
+* 要求被合并的表中，列的类型和列数相同
+
+* UNION，去除重复行
+
+* UNION ALL，不去除重复行
+
+  ```sql
+  SELECT * FROM cd
+  UNION ALL
+  SELECT * FROM ab;
+  ```
+
+### 连接查询
+
+a)	分类
+
+内连接
+外连接
+左外连接
+右外连接
+全外连接(MySQL不支持)
+自然连接（属于一种简化方式）
+
+b)	  内连接
+
+```sql
+-- 方言：
+SELECT * FROM 表1 别名1, 表2 别名2 WHERE 别名1.xx=别名2.xx
+-- 标准：SELECT * FROM 表1 别名1 INNER JOIN 表2 别名2 ON 别名1.xx=别名2.xx
+-- 自然：SELECT * FROM 表1 别名1 NATURAL JOIN 表2 别名2
+```
+
+> 内连接查询出的所有记录都满足条件。
+
+c)	  外连接
+
+```sql
+-- 左外：
+SELECT * FROM 表1 别名1 LEFT OUTER JOIN 表2 别名2 ON 别名1.xx=别名2.xx
+-- 左表记录无论是否满足条件都会查询出来，而右表只有满足条件才能出来。左表中不满足条件的记录，右表部分都为NULL
+
+-- 左外自然：
+SELECT * FROM 表1 别名1 NATURAL LEFT OUTER JOIN 表2 别名2 ON 别名1.xx=别名2.xx
+
+-- 右外：
+SELECT * FROM 表1 别名1 RIGHT OUTER JOIN 表2 别名2 ON 别名1.xx=别名2.xx
+-- 右表记录无论是否满足条件都会查询出来，而左表只有满足条件才能出来。右表不满足条件的记录，其左表部分都为NULL
+
+-- 右外自然：
+SELECT * FROM 表1 别名1 NATURAL RIGHT OUTER JOIN 表2 别名2 ON 别名1.xx=别名2.xx
+
+-- 全链接：可以使用UNION来完成全链接
+```
+
+### 子查询
+
+定义：查询中有查询（查看 select 关键字的个数！）
+
+1. 出现的位置：
+
+* where 后作为条件存在
+* from 后作为表存在(多行多列)
+
+2. 条件
+
+* 单行单列：SELECT \* FROM 表1 别名1 WHERE 列1 \[=、>、<、>=、<=、!=] (SELECT 列 FROM 表2 别名2 WHERE 条件)
+* 多行单列：SELECT \* FROM 表1 别名1 WHERE 列1 \[IN, ALL, ANY] (SELECT 列 FROM 表2 别名2 WHERE 条件)
+* 单行多列：SELECT \* FROM 表1 别名1 WHERE (列1,列2) IN (SELECT 列1, 列2 FROM 表2 别名2 WHERE 条件)
+* 多行多列：SELECT \* FROM 表1 别名1 , (SELECT ....) 别名2 WHERE 条件
+
+---
+
+---
+url: /30.数据库/35.MySQL/40.MySQL优化.md
+---
+
+## 优化简介
+
+### 衡量指标
+
+Qps：Transmission Per Second（每秒传输的事务处理个数），指服务器每秒处理的事务个数，支持事务的存储引擎的一个特有指标。
+
+TPS=（COM\_COMMIT+COM\_ROLLBACK）/UPTIME（即（事务提交数+事务回滚数）/服务器启动时间）
+
+Tps：Queries Per Second（每秒查询处理量），同时使用与InnoDB和MyISAM引擎
+
+TPS=QUESTIONS/UPTIME（即查询量/服务器启动时间）
+
+### 常用工具
+
+MySqlSlap
+
+```sh
+mysqlslap -uroot -padmin --concurrency=500 --iterations=3 --number-char-cols=5 --number-int-cols=5 --auto-generate-sql --auto-generate-sql-add-autoincrement --engine=myisam,innodb --create-schema='alyshentest1'
+```
+
+或者测试单一个存储引擎
+
+```sh
+mysqlslap -uroot -padmin --concurrency=200 --iterations=3 --number-char-cols=5 --number-int-cols=5 --auto-generate-sql --auto-generate-sql-add-autoincrement --engine=innodb --create-schema='alyshentest1'
+```
+
+打印CPU信息加参数：--debug-info（5.7已禁用）
+
+## MySQL逻辑架构
+
+链接层、服务层、引擎层、存储层
+
+### MySQL查询缓存
+
+```sql
+#看数据文件目录
+show global variables like "%datadir%" 
+#查看查询缓存是否开启
+show VARIABLES LIKE 'query_cache_type'
+#查询缓存大小
+show VARIABLES LIKE 'query_cache_size'
+show variables like 'query_cache%'
+开启查询缓存：在my.ini文件中设置：
+query_cache_type=1
+query_cache_size=128M
+```
+
+> 然后重启MySQL
+
+### my.ini文件参数说明
+
+```ini
+port 参数也是表示数据库的端口。
+basedir 参数表示MySQL的安装路径。
+datadir 参数表示MySQL数据文件的存储位置，也是数据库表的存放位置。
+default-character-set 参数表示默认的字符集，这个字符集是服务器端的。
+default-storage-engine 参数默认的存储引擎。
+sql-mode 参数表示SQL模式的参数，通过这个参数可以设置检验SQL语句的严格程度。
+max_connections 参数表示允许同时访问MySQL服务器的最大连接数，其中一个连接是保留的，留给管理员专用的。
+
+query_cache_size 参数表示查询时的缓存大小，缓存中可以存储以前通过select语句查询过的信息，再次查询时就可以直接从缓存中拿出信息。
+
+table_cache 参数表示所有进程打开表的总数。
+tmp_table_siz e参数表示内存中临时表的总数。
+thread_cache_size 参数表示保留客户端线程的缓存。
+myisam_max_sort_file_size 参数表示MySQL重建索引时所允许的最大临时文件的大小。
+myisam_sort_buffer_size 参数表示重建索引时的缓存大小。
+key_buffer_size 参数表示关键词的缓存大小。
+read_buffer_size 参数表示MyISAM表全表扫描的缓存大小。
+read_rnd_buffer_size 参数表示将排序好的数据存入该缓存中。
+sort_buffer_size 参数表示用于排序的缓存大小
+
+#InnoDB存储引擎使用的参数：
+innodb_additional_mem_pool_size 参数表示附加的内存池，用来存储InnoDB表的内容。
+innodb_flush_log_at_trx_commit 参数是设置提交日志的时机，若设置为1，InnoDB会在每次提交后将事务日志写到磁盘上。
+innodb_log_buffer_size 参数表示用来存储日志数据的缓存区的大小。
+innodb_buffer_pool_size 参数表示缓存的大小，InnoDB使用一个缓冲池类保存索引和原始数据。
+innodb_log_file_size 参数表示日志文件的大小。
+innodb_thread_concurrency 参数表示在InnoDB存储引擎允许的线程最大数。
+
+```
+
+## 存储引擎
+
+查看引擎列表：SHOW ENGINES;
+
+查看默认存储引擎：SHOW VARIABLES LIKE '%storage\_engine%'
+
+### MyISAM
+
+MySQL5.5之前默认的存储引擎，由MYD数据文件和MYI索引文件组成，也就是所谓的非聚集索引。在并发性与锁级别方面支持表级锁，支持全文检索，支持数据压缩。
+使用压缩如下：
+
+```sh
+myisampack -b -f product_info.MYI
+```
+
+检查表：CHECK TABLE product\_info;
+修复表：REPAIR TABLE product\_info;
+适用场景：非事务型应用（数据库仓库、报表、日志数据）
+只读类应用，空间类应用（空间函数，坐标）
+
+### InnoDB
+
+MySQL5.5及以后默认使用的存储引擎，可以使用系统表空间和独立表空间，建议使用独立表空间，因为独立表空间可以收缩文件大小，可以同时向多个文件刷新数据，系统表空间无法收缩文件大小，而且会产生IO瓶颈
+查看InnoDB是否使用独立表空间：
+
+```sql
+SHOW GLOBAL VARIABLES LIKE '%innodb_file_per_table%';
+#设置InnoDB使用独立表空间
+SET GLOBAL innodb_file_per_table=ON;
+```
+
+值为ON，使用的是.idb文件，值为OFF，使用的是ibdataX
+
+收缩表空间语法：
+
+```sql
+OPTIMIZE TABLE product_info2;
+```
+
+特性：InnoDB是一种事务性存储引擎，完全支持事务的ACID特性以及Redo Log和Undo Log，InnoDB支持行级锁，使得并发程度更高.
+
+实用场景：InnoDB使用与大多数OLTP（联机事务处理）应用
+
+### CSV
+
+特点：以csv格式进行数据存储，所用的列不能为null，不支持索引（不适合大表，不适合在线处理），可以对数据文件直接编辑，保存文本文件内容。
+
+编辑后需要刷新表：
+
+```sql
+FLUSH TABLE;
+REPAIR TABLE csv_table;
+
+```
+
+### Archive
+
+组成：以 zlib 对表数据进行压缩，磁盘 I/O 更少，数据存储在以 ARZ 为后缀的文件中。
+
+特点：只支持 insert 和 select 操作，只允许在自增 ID 列上加索引。
+
+使用场景：日志和数据采集应用。
+
+### Memory
+
+文件系统存储特点，也称 HEAP 存储引擎，所有数据保存在内存中，支持 HASH 索引和 Btree 索引，所有字段都是固定长度，不支持 Blog 和 Text 等大字段，Memory 存储引擎使用表级锁，最大大小由 max\_heap\_table\_size 决定
+
+使用场景：hash索引用于查找或者是映射表（邮编和地区的对应表），用于保存数据分析的中间表，用于缓存周期性聚合数据的结果表。
+
+Memory数据容易丢失，所以要求数据可再生
+
+### Federated
+
+特点：提供了访问远MySQL服务器上表的方法，本地不存储数据，数据全部放到远程服务器上，本地需要保存表结构和远程服务器的链接信息。
+
+在my.ini文件中开启使用federated
+
+```ini
+federated=1
+```
+
+实现示例：
+
+```sql
+-- federated
+CREATE DATABASE remote;
+
+USE remote;
+CREATE TABLE t_remote(
+  `id` int(20) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `remark` varchar(255) NOT NULL
+)
+SELECT * FROM t_remote;
+
+USE mysqldemo;
+
+CREATE TABLE federated_remote(
+  `id` int(20) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `remark` varchar(255) NOT NULL
+)ENGINE=federated CONNECTION='mysql：//root：admin@localhost：3306/remote/t_remote';
+
+show TABLES;
+SELECT * FROM federated_remote;
+INSERT INTO federated_remote VALUES(2,'6565','9854');
+```
+
+使用场景：偶尔的统计查询及手工分析
+
+## 锁
+
+### MyISAM表共享读锁
+
+```sql
+-- 共享读锁
+
+-- 上锁
+LOCK TABLE innodb_table READ;
+
+INSERT INTO innodb_table VALUES(2,'12332','3654'); -- 报错
+INSERT INTO innodb_table2 VALUES(2,'12332','3654'); -- 报错，在另一个会话中成功
+
+SELECT * FROM innodb_table -- ok 
+
+-- 解锁
+UNLOCK TABLES
+
+-- 查看锁表次数
+show status LIKE 'table_locks_waited'
+```
+
+### MySIAM表读占写锁
+
+```sql
+-- MyISAM独占写锁
+LOCK TABLE myisam_table WRITE;
+INSERT INTO myisam_table(name,remark) VALUES('12332','3654'); -- ok
+UPDATE myisam_table SET `name`='32133' WHERE id=1;						-- ok
+INSERT INTO innodb_table(name,remark) VALUES('12332','3654'); -- 报错
+
+SELECT * FROM myisam_table; -- ok
+
+-- 在另外一个会话中 INSERT、updata 等待
+
+UNLOCK TABLES
+```
+
+### MyISAM锁调度
+
+MyISAM存储引擎的读锁和写锁是互斥的，读写操作是串行的。那么，一个进程请求某个MyISAM表的读锁，同时另一个进程也请求同一表的写 锁，MySQL如何处理呢？答案是写进程先获得锁。不仅如此，即使读请求先到锁等待队列，写请求后到，写锁也会插到读锁请求之前！这是因为MySQL认为 写请求一般比读请求要重要。这也正是MyISAM表不太适合于有大量更新操作和查询操作应用的原因，因为，大量的更新操作会造成查询操作很难获得读锁，从 而可能永远阻塞。这种情况有时可能会变得非常糟糕！幸好我们可以通过一些设置来调节MyISAM的调度行为。
+
+·通过指定启动参数 low-priority-updates，使 MyISAM 引擎默认给予读请求以优先的权利。
+
+·通过执行命令 SET LOW\_PRIORITY\_UPDATES=1，使该连接发出的更新请求优先级降低。
+
+·通过指定 INSERT、UPDATE、DELETE 语句的 LOW\_PRIORITY 属性，降低该语句的优先级。
+
+虽然上面3种方法都是要么更新优先，要么查询优先的方法，但还是可以用其来解决查询相对重要的应用（如用户登录系统）中，读锁等待严重的问题。
+
+另外，MySQL也提供了一种折中的办法来调节读写冲突，即给系统参数max\_write\_lock\_count设置一个合适的值，当一个表的读锁达到这个值后，MySQL就暂时将写请求的优先级降低，给读进程一定获得锁的机会。
+
+上面已经讨论了写优先调度机制带来的问题和解决办法。这里还要强调一点：一些需要长时间运行的查询操作，也会使写进程“饿死”！因此，应用中应尽量避免出 现长时间运行的查询操作，不要总想用一条SELECT语句来解决问题，因为这种看似巧妙的SQL语句，往往比较复杂，执行时间较长，在可能的情况下可以通 过使用中间表等措施对SQL语句做一定的“分解”，使每一步查询都能在较短时间完成，从而减少锁冲突。如果复杂查询不可避免，应尽量安排在数据库空闲时段 执行，比如一些定期统计可以安排在夜间执行。
+
+### InnoDB行锁
+
+共享锁：又称读锁，当一个事务对某几行上读锁时，允许其他事务对这几行进读操作，但不允许进行写操作，也不允许其他事务对这几行上排它锁，但允许上读锁。
+
+排它锁：又称写锁，当一个事务对某几行上写锁时，不允许其他事务写，但允许读，更不允许其他事务对这几行上任何锁，包括写锁。
+
+**上共享锁：**
+
+```sql
+BEGIN; -- 读锁和写锁都要先开启事务
+
+SELECT * FROM innodb_table WHERE id = 1 LOCK IN SHARE MODE;
+
+-- 在另外一个会话中：
+SELECT * FROM innodb_table WHERE id = 1; -- ok
+UPDATE innodb_table SET `name`='商品名' WHERE id=1; -- 等待
+
+-- 释放锁
+COMMIT;
+ROLLBACK;
+```
+
+**上排它锁：**
+
+```sql
+BEGIN; 
+
+SELECT * FROM innodb_table WHERE id = 1 FOR UPDATE;
+-- 在另外一个会话中：
+SELECT * FROM innodb_table WHERE id = 1; -- ok
+UPDATE innodb_table SET `name`='商品名' WHERE id=1; -- 等待
+
+-- 释放锁
+COMMIT;
+ROLLBACK;
+```
+
+### InnoDB表锁
+
+InnoDB的表锁跟MyISAM的表锁相似，另外执行开启事务的begin语句也也会释放InnoDB的表锁
+
+### 表结构在线修改
+
+pt-online-schema-change：在线表结构修改工具
+
+安装使用：
+
+安装perl环境
+
+```
+yum -y install perl
+mkdir perl
+```
+
+安装DBI
+
+```sh
+mv DBI-1.637.tar.gz perl/
+cd perl/
+tar zxvf DBI-1.637.tar.gz
+cd DBI-1.637
+perl Makefile.PL
+make
+make install
+yum search gcc
+yum -y install gcc-c++
+make install
+```
+
+安装perl-DBD-MySQL
+
+```sh
+yum install perl-DBD-MySQL
+```
+
+安装percona-toolkit
+
+```sh
+mv percona-toolkit_2.2.12.tar.gz perl/
+cd perl/
+tar zxvf percona-toolkit_2.2.12.tar.gz
+cd percona-toolkit-2.2.12/
+perl Makefile.PL
+make
+make test
+make install
+```
+
+使用percona-toolkit
+
+```sh
+cd bin/
+perl pt-online-schema-change h=192.168.86.126,p=admin,u=root,D=mysqldemo,t=innodb_table --alter "modify name varchar(200) not null default '' " –execute
+```
+
+### 解锁
+
+‌使用SHOW PROCESSLIST命令‌：
+在MySQL命令行中执行SHOW PROCESSLIST;命令可以显示当前正在执行的所有会话信息，其中包括锁定的表。在“Info”列中，可以看到“locked”字段，如果为“YES”，则表示该会话正在对表进行加锁。
+
+‌使用INFORMATION\_SCHEMA表‌：
+可以通过查询INFORMATION\_SCHEMA中的INNODB\_LOCKS表来获取当前InnoDB引擎上所有锁定的表和行的信息。执行以下命令：
+
+```sql
+SELECT * FROM information_schema.INNODB_LOCKS;
+```
+
+这将显示当前InnoDB引擎上所有锁定的表和行。
+
+‌使用Performance Schema表‌：
+MySQL的Performance Schema提供了更多关于锁定的详细信息。可以通过执行以下命令来获取当前锁信息：
+
+```sql
+SELECT * FROM performance_schema.locks;
+```
+
+这将显示所有当前的锁信息，包括表名、锁定类型、持有锁定的会话ID等。
+
+‌查看锁表状态和结束死锁的步骤‌：
+
+‌查看表被锁状态‌：可以使用SHOW OPEN TABLES WHERE In\_use > 0;命令来记录当前锁表状态。
+‌查询造成死锁的SQL语句‌：可以通过SHOW ENGINE INNODB STATUS;命令查看InnoDB引擎的状态，分析造成死锁的SQL语句和索引情况，然后优化SQL。
+‌杀死占用时间长的SQL语句‌：可以通过SHOW PROCESSLIST;命令找到占用时间长的SQL语句，并使用KILL 具体的id;命令来终止这些进程。
+
+## 慢查询
+
+**慢查询基本配置**
+
+```sql
+-- 开启慢查询日志
+SHOW VARIABLES LIKE '%slow_query_log%';
+SET GLOBAL slow_query_log=1;
+
+-- 慢查询时间设定
+SHOW VARIABLES LIKE '%long_query_time%';
+SET GLOBAL long_query_time=3; -- 3秒
+
+SELECT SLEEP(4); -- 4秒的查询
+-- 日志文件输出，默认file，建议使用默认的file
+SHOW VARIABLES LIKE '%log_output%';
+-- 慢查询日志文件输出路径
+SHOW VARIABLES LIKE '%datadir%';
+```
+
+**慢查询分析 解读**
+
+使用MySQLdumpslow
+
+```sh
+/usr/bin/mysqldumpslow -s r -t 10 localhost-slow.log
+```
+
+使用Pt\_query\_digest
+
+```sh
+perl /usr/local/bin/pt-query-digest localhost-slow.log
+```
+
+> localhost-slow.log为慢查询日志
+
+## 索引
+
+MySQL 的索引分为普通索引、唯一索引、复合索引、聚簇索引和非聚簇索引5大类
+
+### 索引操作
+
+```sql
+-- 查看指定数据表的索引。
+show index from test.student;
+
+-- 删除指定的索引。
+drop index index_name on test.student;
+
+-- 修改表结构的方式删除索引。
+alter table test.student drop index index_name;
+
+-- 创建普通索引。
+create index index_name on test.student(StuNo);
+
+-- 修改表结构的方式添加索引，这种方式可以不指定索引名称，不指定系统会自动默认一个索引名称。
+alter table test.student add index index_name(StuNo);
+
+-- 创建唯一索引，指定创建唯一索引的列的值必须是唯一的，不能重复，但是可以为null。
+create unique index index_name on test.student(StuNo);
+
+-- 修改表结构的方式添加唯一索引。
+alter table test.student add unique index index_name(StuNo);
+
+-- 修改表结构的方式添加主键，必须保证添加主键的列的值不能为null，并且是唯一的，不可重复。
+alter table test.student add primary key PrimaryKey_Name(ID);
+
+-- 删除指定数据表的主键，删除主键时只需指定 primary key，删除索引时必须指定索引名。
+-- 注意：当主键列同时是自增长列时，不能直接删除主键，需要先删除自增长约束。
+alter table test.student drop primary key;
+
+-- 添加全文索引。
+alter table test.student add fulltext index_name(StuNo);
+
+-- 加上关键字ignore创建的唯一索引和主键，在插入重复数据时，会直接过滤掉重复数据，并且不会报错，否则就会抛出错误。
+alter ignore table test.student add primary key(ID);
+alter ignore table test.student add unique index index_name(StuNo);
+```
+
+### 建索引建议
+
+1）   某一列相对来说唯一
+2）   经常用来查询显示的列（覆盖索引）
+3）   经常用来关联的列，where条件中用到的列，以及join on用到的列
+
+## 执行计划 Explain
+
+Explain的10个参数
+
+**id**：查询的一个排序，值越高执行的优先级越高，值相同，依次执行
+
+**select\_type**：查询类型，用于区别普通查询，复合查询、子查询等复杂查询
+
+:::tip 查询类型
+
+Simple：简单查询；
+
+Primary：如果有复杂的子查询，最外层标记为primary；
+
+Subquery：子查询
+
+Derived：衍生查询
+
+Union：若第二个select出现在union之后，标记为union，若union包含在from字句的子查询中，外层的select将被标记为derived
+
+union result：从union表获取结果的select
+
+:::
+
+**table**：  查询的表
+
+**type**：访问类型，是一个重要的指标，常见的指标排序：
+
+:::tip 访问类型
+
+system > const > eq\_ref > ref >range > all
+
+system：表只有一条数据
+
+const：通过索引只查一次就能找到
+
+eq\_ref：唯一性索引扫描，表中只有一条记录匹配
+
+ref：非唯一性索引扫描，表中有多条记录匹配
+
+range：检索给定范围
+
+all：全表扫描
+
+:::
+
+**possible\_keys**：可能用到的键
+
+**key**：实际用到的键
+
+**key\_length**：索引键总长度
+
+**ref**：对前面的tpye的一个详细显示，很有可能是一个常量，比如用到的索引是什么type，用到主键具体是那个数据库哪张表的主键
+
+**rows**：扫描了多少行
+
+**extra**：包含不适合在其他列显示但十分重要的额外信息
+
+## SQL 优化
+
+### Extra 提示优化
+
+**using filesort**
+
+使用的文件排序，并非使用索引的排序，解决方案是在 order by 后面使用覆盖索引
+
+**using temporary**
+
+通常情况下在使用了 order by 或者 group by 时会出现，解决方案是在group by后面使用覆盖索引
+
+**using index**
+
+表示 select 操作使用了覆盖索引，避免访问表的数据行，效率还行。
+
+**using where**
+
+表明使用了 where 过滤
+
+**using join buffer**
+
+表明使用了链接缓存
+
+**impossible where**
+
+where 字句的值总是 false，不能用来获取任何元素，比如 where 1=2;
+
+### 优化10策略
+
+策略一：尽量值匹配
+
+策略二：最佳左前缀法则
+
+策略三：不在索引列上做任何操作
+
+策略四：范围条件放最后
+
+策略五：覆盖索引尽量用
+
+策略六：不等于要慎用
+
+策略七：null和not null有影响
+
+策略八：like查询要当心
+
+策略九：字符类型加引号
+
+策略十：or改union效率高
+
+## 数据批量操作
+
+**导出**
+
+```sql
+select * into OUTFILE 'D：\\product.txt' from product_info
+```
+
+**导入**
+
+```sql
+load data INFILE 'D：\\product.txt' into table product_info2
+#指定客户端文件
+load data local INFILE 'D：\\product.txt' into table product_info
+```
+
+\*\*报错：\*\*The MySQL server is running with the --secure-file-priv option so it cannot execute this statement
+
+查看show variables like '%secure%'，在my.ini中修改secure-file-priv=""
+
+**批量执行sql命令文件**
+
+```
+source D:\dir\test.sql
+```
+
+## mysqlslap工具
+
+```sql
+mysqlslap -uroot -padmin --concurrency=500 --iterations=3 --number-char-cols=5 --number-int-cols=5 --auto-generate-sql --auto-generate-sql-add-autoincrement --engine=myisam --create-schema='enjoytest1'
+
+mysqlslap -uroot -padmin --concurrency=200 --iterations=3 --number-char-cols=5 --number-int-cols=5 --auto-generate-sql --auto-generate-sql-add-autoincrement --engine=innodb --create-schema='enjoytest1'
+
+
+--debug-info 5.7被禁用
+```
+
+---
+
+---
+url: /30.数据库/70.Oracle笔记.md
+---
+
+Oracle
+安装 略…
+
+## 启动 链接
+
+```sh
+# 启动 Oracle 10g
+
+lsnrctl start
+sqlplus /nolog
+conn as sysdba
+system
+startup
+```
+
+**连接Win版**
+
+监听端口查询文件：
+
+D:\ORACLE\product\10.2.0\db\_1\NETWORK\ADMIN\listener.ora
+
+连接到数据库（服务）查看文件：
+
+D:\ORACLE\product\10.2.0\db\_1\NETWORK\ADMIN\tnsnames.ora
+
+**连接Linux版**
+
+连接 SQL\*PLUS 常见的几种连接方法：
+
+```sh
+-sqlplus scott/tiger
+-sqlplus /nolog
+-sqlplus “sys/oracle as sysdba” 	#指定登录身份
+-sqlplus scott/tiger@abc 			#指定用户名
+```
+
+Oracle 默认用户：
+
+sys：系统最高权限管理员
+
+system：默认的系统管理员，拥有Oracle管理工具使用的内部表和视图，通常用来管理数据库用户、权限和存储等
+
+scott：Oracle 的示范账户用来测试，开启 scott：
+
+```sql
+ -- 开启 scott 用户
+alter user scott account unlock;
+ -- 改密码
+alter user scott identified by xxxxx;
+```
+
+## 数据字典 表空间
+
+**数据字典**
+
+在数据库创建时 Oracle 服务器额外创建的对象，用来存储数据库本身的信息
+
+数据字典分为数据字典表和动态性能表
+
+数据字典表：
+
+是一套记录、验证和提供数据库访问信息的只读表和视图，包含基表和数据视图
+
+三种静态视图：DBA>ALL>USER
+
+列子：
+
+```sql
+概要信息：
+	-DICTIONARY,DICT_COLUMNS
+方案对象：
+    -DBA_TABLES,DBA_INDEXES
+    -DBA_TAB_COLUMNS
+    -DBA_CONSTRAINTS
+空间分配：
+    -DBA_SEGMENTS,DBA_EXTENTS
+数据库结构：
+	-DBA_TABLESPACES,DBA_DATA_FILES
+```
+
+动态性能表：
+
+记录当前数据库的一些活动
+
+常用视图：
+
+```sql
+V$CONTROLFILE
+V$DATABASE
+V$DATAFILE
+V$INSTANSE
+V$PARAMETER
+V$SESSION
+V$SAG
+V$SPPARAMETER
+V$TABLESPACE
+V$THREAD
+V$VERSION
+```
+
+**创建表空间**
+
+Oracle是通过用户去管理数据的
+
+要存储数据必先建表空间，再建用户，再建对象（表、索引、视图）
+
+system 表空间：
+
+​	数据库创建时创建，包含数据字典和system回滚段
+
+Non-system 表空间：
+
+​	独立的段，简化空间管理，给用户分配的空间
+
+临时表空间：用于临时操作，没有任何永久对象
+
+查询所有表空间：
+
+```sql
+select distinct tablespace_name from dba_free_space;
+```
+
+创建表空间：
+
+```sql
+CREATE TABLESPACE xxxxxspace 
+DATAFILE 'D:\ORACLE\product\10.2.0\oradata\orcl\xxxxxspace.BDF' 
+SIZE 20M 
+AUTOEXTEND OFF;   -- 自动扩展开启为：on
+```
+
+删除表空间：
+
+```sql
+drop tablespace xxxxxspace including contents and datafiles;
+ -- including contents and datafiles包括内容及文件
+```
+
+## 用户 权限
+
+**创建用户：**
+
+```sql
+ --  Create the user 
+create user userName
+  identified by xxxxxx
+  default tablespace xxxxxSPACE
+  temporary tablespace TEMP;
+```
+
+**权限授予：**
+
+系统权限
+
+​		系统权限允许用户执行某些数据库操作，如建表就是一个系统权限
+
+对象权限
+
+​		对象权限允许用户对数据对象（如表、视图、序列等）执行特定操作
+
+​		角色是一组相关权限的组合，将权限授予角色，再把角色授予用户
+
+```sql
+-- 授予连接权限：
+grant connect to userName with admin option;
+-- 授予DBA权限：
+grant dba to userName with admin option;
+-- 撤销权限：
+revoke dba from userName;
+```
+
+## 建表及维护
+
+**数据类型**：
+
+| 数据类型         | 描述                                  |
+| ---------------- | ------------------------------------- |
+| VARCHAR2(size)   | 可变长度字符串数据（1..4000）         |
+| CHAR(size)       | 固定长度字符串数据（1..2000）         |
+| NUMBER(p,s)      | 可变长度数字数据                      |
+| DATE             | 日期和时间数值                        |
+| LONG             | 可变长度字符数据，最大到2GB           |
+| CLOB             | 字符数据，最大到4GB                   |
+| RAW and LONG RAW | 原始二进制数                          |
+| BLOB             | 二进制数，最大到4GB                   |
+| BFILE            | 存储到外部文件中的二进制数；最大到4GB |
+| ROWID            | 表示在表中的唯一地址                  |
+
+**SQL语句的分类**
+
+**DDL**（Data Definition Language）：
+
+数据定义语言，对数据库对象（库、表、列、索引）的操作。
+
+​	比如：create、drop、alter、rename、truncate 等
+
+**DML**（Data Manipulation Language）：
+
+数据操作语言，对数据库记录的操作。
+
+​	比如：insert、delete、update、select 等
+
+**DCL**（Data Control Language）：
+
+数据控制语言，对数据库、表、字段、用户的访问权限及安全级别。
+
+​	比如：grant、revoke 等
+
+**Transaction Control** 事物控制：
+
+​	比如：commit、rollback、savepoint
+
+**建表**：
+
+```sql
+ -- ID、编号
+CREATE TABLE TB_CLASS(
+       ID NUMBER,
+       CLASSNAME VARCHAR2(18)
+);
+ -- id、名字、性别、地址、手机、邮箱
+CREATE TABLE tb_student(
+    id NUMBER,
+    name VARCHAR2(18),
+    sex CHAR(2),
+    address VARCHAR2(50),
+    iphone VARCHAR2(11)
+);
+
+ -- 从其他表中获取字段在建成一个表
+ -- 学员地址表
+CREATE TABLE TB_STUDENT_ADDRESS 
+AS SELECT ID,USERNAME,ADDRESS FROM TB_STUDENT;
+```
+
+**维护表**
+
+1.ALTER TABLE 修改表
+
+```sql
+ -- 增加列
+ -- 添加邮箱列
+ALTER TABLE TB_STUDENT ADD EMAIL VARCHAR2(50);
+
+-- 删除列
+-- 删除iPhone字段
+ALTER TABLE TB_STUDENT DROP COLUMN IPHONE;
+
+-- 修改列
+-- 修改字段长度
+-- 修改地址字符长度为100
+ALTER TABLE TB_STUDENT MODIFY ADDRESS VARCHAR2(100);
+
+-- 修改列名
+-- 将name修改为username
+ALTER TABLE TB_STUDENT RENAME COLUMN NAME TO USERNAME;
+
+-- 修改表名
+-- 修改表名tb_student为tb_stu
+RENAME TB_STUDENT TO TB_STU;
+```
+
+2.COMMENT ON 加注释
+
+```sql
+ -- 给tb_student加注释为学生表
+COMMENT ON TABLE TB_STUDENT IS '学生表';
+ -- 给手机号码加注释为电信号码
+COMMENT ON COLUMN TB_STUDENT.IPHONE IS '电信号码';
+-- 使用数据字典查注释
+-- 查当前用户下所有的表
+SELECT * FROM USER_TABLES;
+ -- 查所有表注释
+SELECT * FROM USER_TAB_COMMENTS;
+ -- 查所有列注释
+SELECT * FROM USER_COL_COMMENTS;
+```
+
+3.DROP TABLE 删除表
+
+```sql
+ -- 删除到回收站中：
+ -- 删除TB_CLASS
+DROP TABLE TB_CLASS;
+
+ -- 恢复表：
+ -- 恢复TB_CLASS
+FLASHBACK TABLE TB_CLASS TO BEFORE DROP;
+
+ -- 彻底删除表（不可恢复）：
+ -- 彻底删除TB_CLASS
+DROP TABLE TB_CLASS PURGE;
+```
+
+4.TRUNCATE TABLE 截断表：
+截断表即删除数据，数据不可恢复，保留表结构
+
+```sql
+ -- 截断TB_CLASS
+TRUNCATE TABLE TB_CLASS;
+```
+
+## 数据操作
+
+关于事务：
+
+对于 Oracle 来说，所有的 DML 语句需要手动提交，我们执行一条 DML 语句的时候，SQL 语句先是存在缓存中（回滚段），需要手动提交 commit 或者回滚 rollback。
+
+事务：多条 SQL 语句，可以一次提交或者回滚 commit 到 commit 之间的所有 SQL 语句我们称为一个事务。
+
+INSERT INTO 插入数据：
+
+```sql
+ -- 向TB_CLASS中加入id为1编号为java22
+INSERT INTO TB_CLASS(ID,CODE) VALUES(1,'java22');
+COMMIT;
+
+ -- 从其他表中获得数据
+ -- 首先创建班级表2
+CREATE TABLE TB_CLASS2 AS SELECT * FROM TB_CLASS;
+
+ -- 截断班级表2中的数据
+TRUNCATE TABLE TB_CLASS2;
+
+ -- 班级表2从班级表1中获取数据
+INSERT INTO TB_CLASS2(ID,CLASSNAME)
+SELECT ID,CLASSNAME FROM TB_CLASS;
+COMMIT;
+```
+
+UPDATE TABLE 修改数据：
+
+```sql
+ -- 将id为1的班级改为Java24
+UPDATE TB_CLASS SET CLASSNAME='Java24' WHERE ID=1;
+COMMIT;
+```
+
+DELETE FROM TABLE 删除数据：
+
+```sql
+ -- 将id为1的班级删除，提交后不可恢复
+DELETE FROM TB_CLASS WHERE ID=1;
+COMMIT;
+
+ -- 删除所有班级数据，保留表结构，提交后不可恢复
+DELETE FROM TB_CLASS;
+COMMIT;
+
+ -- 删除所有班级数据，保留表结构，不可恢复
+TRUNCATE TABLE TB_CLASS; 
+
+ -- 删除所有班级数据和表结构，不可恢复
+DROP TABLE TB_CLASS;
+```
+
+## 列级 表级约束
+
+**数据完整性**
+
+指的是数据的精确性和可靠性。它是应防止数据库中存在不符合语义规定的数据和防止因错误信息是输入输出造成无效操作或错误信息而提出的。
+
+一般采用外键、约束、规则和触发器来维护数据的完整性。
+
+**约束**
+
+约束是在表上强制执行的数据校验规则，主要用于保证数据库的完整性。
+
+一般是数据库支持下面五类完整性约束：
+
+```sql
+NOT NULL		#非空
+UNIQUE KEY		#唯一键
+PRIMARY KEY		#主键
+FOREIGN KEY		#外键
+CHECK			#检查
+```
+
+列级约束
+
+```sql
+ -- 班级表
+CREATE TABLE TB_CLASS(
+       ID NUMBER PRIMARY KEY,
+       CLASSNAME VARCHAR2(18) NOT NULL UNIQUE,
+       CLASSMONITOR VARCHAR2(18) NOT NULL
+)
+ -- 学生表
+CREATE TABLE TB_STUDENT(
+       ID NUMBER PRIMARY KEY,
+       CLASSID NUMBER NOT NULL REFERENCES TB_CLASS(ID),
+        -- 许多数据库不支持列级约束中使用外键约束
+       NAME VARCHAR(18) NOT NULL,
+       SEX CHAR(6) NOT NULL CHECK(SEX='男'OR SEX='女'),
+       AGE NUMBER NOT NULL CHECK(AGE>3 AND AGE<60),
+       ADDRESS VARCHAR2(80) DEFAULT'中国北京',
+       EMAIL VARCHAR(50) UNIQUE
+)
+```
+
+表级约束
+
+```sql
+ -- 班级表
+CREATE TABLE TB_CLASS(
+       ID NUMBER,
+       CLASSNAME VARCHAR2(18) NOT NULL,
+       CLASSMONITOR VARCHAR2(18) NOT NULL,
+       CONSTRAINTS CLASS_ID_PRIMARY_KEY PRIMARY KEY(ID),
+       CONSTRAINTS NAME_UNIQUE UNIQUE(CLASSNAME)
+)
+ -- 学生表
+CREATE TABLE TB_STUDENT(
+       ID NUMBER,
+       CLASSID NUMBER NOT NULL,
+       NAME VARCHAR2(18) NOT NULL,
+       SEX CHAR(6) NOT NULL,
+       AGE NUMBER NOT NULL,
+       ADDRESS VARCHAR2(80) DEFAULT '中国北京',
+        -- 默认值约束只能在列级使用
+       EMAIL VARCHAR2(50),
+       CONSTRAINTS STUDENT_ID_PRIMARY_KEY PRIMARY KEY(ID),
+       CONSTRAINTS CLASSID_FOREIGN_KEY FOREIGN KEY(CLASSID) REFERENCES TB_CLASS(ID),
+       CONSTRAINTS SEX_CHECK CHECK(SEX='男' OR SEX='女'),
+       CONSTRAINTS AGE_CHECK CHECK(AGE>3 AND AGE<60),
+       CONSTRAINTS EMAIL_UNIQUE UNIQUE(EMAIL)
+);
+```
+
+联合主键
+
+```sql
+ -- 联合主键
+CREATE TABLE TB_PERSON(
+       LASTNAME VARCHAR2(18),
+       FIRSTNAME VARCHAR2(18),
+       CONSTRAINTS NAME_PRIMARY_KEY PRIMARY KEY(LASTNAME,FIRSTNAME)
+);
+ -- 两个名字连在一起不能相同
+```
+
+**约束的维护**
+
+增加和删除约束
+
+```sql
+ -- 班级表
+CREATE TABLE TB_CLASS(
+       ID NUMBER,
+       CLASSNAME VARCHAR2(18) NOT NULL,
+       CLASSMONITOR VARCHAR2(18) NOT NULL
+);
+
+ -- 增加主键约束
+ALTER TABLE TB_CLASS ADD CONSTRAINTS CLASS_ID_PRIMARY_KEY PRIMARY KEY(ID);
+
+ -- 增加班级名唯一键约束
+ALTER TABLE TB_CLASS ADD CONSTRAINTS CLASSNAME_UNIQUE UNIQUE(CLASSNAME);
+
+ -- 学生表
+CREATE TABLE TB_STUDENT(
+       ID NUMBER,
+       CLASSID NUMBER NOT NULL,
+       NAME VARCHAR2(18) NOT NULL,
+       SEX CHAR(6) NOT NULL,
+       AGE NUMBER NOT NULL,
+       ADDRESS VARCHAR2(80) DEFAULT '中国北京',
+        -- 默认值约束只能在列级使用
+       EMAIL VARCHAR2(50)
+);
+
+ -- 增加主键约束
+ALTER TABLE TB_STUDENT ADD CONSTRAINTS STUDENT_ID_PRIMARY_KEY PRIMARY KEY(ID);
+
+ -- 增加外键约束
+ALTER TABLE TB_STUDENT ADD CONSTRAINTS STUDENT_CLASSID_FOREIGN_KEY FOREIGN KEY(CLASSID) REFERENCES TB_CLASS(ID);
+
+ -- 增加检查约束
+ALTER TABLE TB_STUDENT ADD CONSTRAINTS SEX_CHECK CHECK(SEX='男' OR SEX='女');
+ALTER TABLE TB_STUDENT ADD CONSTRAINTS AGE_CHECK CHECK(AGE>3 AND AGE<60);
+
+ -- 删除约束
+ALTER TABLE TB_STUDENT DROP CONSTRAINTS STUDENT_ID_PRIMARY_KEY;
+```
+
+禁用和激活约束
+
+```sql
+ -- 禁用学员班级id外键约束
+ALTER TABLE TB_STUDENT DISABLE CONSTRAINTS STUDENT_CLASSID_FOREIGN_KEY;
+
+ -- 启用学员班级id外键约束
+ALTER TABLE TB_STUDENT ENABLE CONSTRAINTS STUDENT_CLASSID_FOREIGN_KEY;
+```
+
+## 数据建模
+
+**三范式**
+
+ER图：Entire-实体，Relation-关系
+
+第一范式（1NF）：在关系模式R中的每一个具体关系R中，必须要有主键，并且每个属性值都是再不可分的最小数据单位，则称R是第一范式的关系
+
+第二范式（2NF）：如果关系模式R中的所有非主属性都完全依赖于主关键字，则称R是属于第二范式的关系。
+
+第三范式（3NF）：关系模式R中的非主关键字不能依赖于其他非主关键字，即非主关键字之间不能有函数（传递）依赖关系，则称R是属于第三范式的关系。
+
+**数据建模如何才能满足第三范式？**
+
+第一范式：删除表中重复的列达到第一范式。
+
+第二范式：删除表中不完全依赖于主键的数据以获得第二范式。
+
+第三范式：删除那些不属于该表的数据（即完全依赖于其他列或外键的数据项）。一个非主关键字不允许依赖另一个非主关键字。
+
+**实体关系**
+
+一对多与多对一
+
+```sql
+ -- 班级对学员处于一对多关系
+ -- 班级表
+CREATE TABLE TB_CLASS(
+       CLASS_ID NUMBER PRIMARY KEY,
+       CLASS_NAME VARCHAR2(18) NOT NULL UNIQUE
+        -- 放弃外键维护
+);
+
+ -- 学生表
+CREATE TABLE TB_STUDENT(
+       STU_ID NUMBER,
+       CLASS_ID NUMBER NOT NULL REFERENCES TB_CLASS(CLASS_ID),
+        -- 维护外键
+       STU_NAME VARCHAR2(18) NOT NULL,
+       SEX CHAR(6) NOT NULL CHECK(SEX='男' OR SEX='女'),
+       AGE NUMBER NOT NULL CHECK(AGE>3 AND AGE<60),
+       ADDRESS VARCHAR2(80) DEFAULT '中国北京',
+       EMAIL VARCHAR2(50) UNIQUE
+);
+```
+
+多对多
+
+```sql
+ -- 学员表与课程表多对多关系
+ -- 学生表
+CREATE TABLE TB_STUDENT(
+       STU_ID NUMBER PRIMARY KEY,
+       CLASS_ID NUMBER NOT NULL REFERENCES TB_CLASS(CLASS_ID),
+        -- 维护外键
+       STU_NAME VARCHAR2(18) NOT NULL,
+       SEX CHAR(6) NOT NULL CHECK(SEX='男' OR SEX='女'),
+       AGE NUMBER NOT NULL CHECK(AGE>3 AND AGE<60),
+       ADDRESS VARCHAR2(80) DEFAULT '中国北京',
+       EMAIL VARCHAR2(50) UNIQUE
+);
+
+ -- 课程表
+CREATE TABLE TB_CURRICULUM(
+       CURRI_ID NUMBER PRIMARY KEY,
+       CURRI_NAME VARCHAR2(18) NOT NULL UNIQUE 
+);
+
+ -- 学生与课程关联表（学员选课表）
+ -- 1、建立主键，学员和课程建立外键，符合设计标准
+ -- 2、学员和课程建立联合主键，学员和课程建立外键
+CREATE TABLE TB_STUDENT_CURRICULUM(
+       STU_ID NUMBER,
+       CURRI_ID NUMBER,
+       CONSTRAINTS STUDENT_CURRICULUM_PRIMARY_KEY PRIMARY KEY(STU_ID,CURRI_ID),
+       CONSTRAINTS STU_ID_FOREIGN_KEY FOREIGN KEY(STU_ID) REFERENCES TB_STUDENT(STU_ID),
+       CONSTRAINTS CURRI_ID_FOREIGN_KEY FOREIGN KEY(CURRI_ID) REFERENCES TB_CURRICULUM(CURRI_ID)
+);
+```
+
+一对一
+
+```sql
+ -- 身份证与个人形成一对一关系
+ -- 身份证
+CREATE TABLE TB_CARD(
+       C_ID NUMBER PRIMARY KEY,
+       C_CODE VARCHAR2(18) NOT NULL  
+);
+ -- 1、通常使用唯一外键关联
+ -- 个人
+CREATE TABLE TB_PERSON(
+       P_ID NUMBER PRIMARY KEY,
+       P_NAME VARCHAR2(18) NOT NULL,
+       C_ID NUMBER UNIQUE, -- 一个人一个身份证
+       CONSTRAINTS C_ID_FK FOREIGN KEY(C_ID) REFERENCES TB_CARD(C_ID)
+);
+
+ -- 2、使用主键关联
+ -- 个人
+CREATE TABLE TB_PERSON2(
+       C_ID NUMBER PRIMARY KEY, -- 将身份证中的id设为主键
+       P_NAME VARCHAR2(18) NOT NULL,
+       CONSTRAINTS C_ID_FK2 FOREIGN KEY(C_ID) REFERENCES TB_CARD(C_ID)
+);
+```
+
+## 简单查询语句
+
+使用示范用户 scott
+
+```sql
+ -- 使用system的dba权限登录
+ALTER USER SCOTT ACCOUNT UNLOCK; -- 给scott用户解锁
+ALTER USER SCOTT IDENTIFIED BY TIGER; -- 从新设置密码
+```
+
+各种运算符
+
+```sql
+||					#字段结果连接符，相当于Java中string的+
+AS xxx				#查询时设置别名
+WHERE				#条件
+IS NULL				#是 null
+IS NOT NULL			#不是 null
+''<>NULL = true
+					#任何数据与null加减乘除都等于null
+SELECT DISTINCT 字段			#字段不重复
+SELECT DISTINCT 字段,字段2	   #字段组合不重复
+							#字符串与日期需要单引号
+<>					#不等
+LIKE '%ab%'			#匹配'ab'，
+LIKE '_b%'			#第二个字符是'b'
+
+WHERE ITEM IN(a,c,e)			#相当于：WHERE ITEM=a OR ITEM=c OR ITEM=e;
+WHERE ITEM BETWEEN 800 AND 3000	#相当于：WHERE ITEM>=800 AND ITEM<=3000;
+								# AND 优先级大于 OR
+ORDER BY 字段 [ASC,DESC] 		 #ASC 降序（默认），DESC 升序
+```
+
+## 常用函数
+
+### 单行函数
+
+字符函数
+大小写转换函数
+
+```sql
+ -- LOWER(STR);转小写
+SELECT * FROM EMP WHERE LOWER(ENAME)='smith';
+SELECT LOWER('Hello World') FROM DUAL;
+
+ -- UPPER(STR);转大写
+SELECT UPPER('Hello World') FROM DUAL;
+
+ -- INITCAP(STR);单词首字母大写
+SELECT INITCAP('hello world') FROM DUAL;
+```
+
+字符串操作函数
+
+```sql
+ -- 连接两个字符串
+ -- CONCAT(STR,STR2);
+SELECT CONCAT('hello',' world')AS STR FROM DUAL;
+
+ -- 获取指定位置字符串
+ -- SUBSTR(STR,N,M);从n开始获取m个字符,不指定m时从位置n开始全部获取，n为负数时为倒数字符串位置开始
+SELECT SUBSTR('hello world',-8,5)AS STR FROM DUAL;
+
+ -- 获取字符长度
+ -- LENGTH(STR);
+SELECT LENGTH('hello world')AS LENGTH FROM DUAL;
+
+ -- 获取位置
+ -- INSTR(STR1,STR2,n,m);在str1中从位置n开始获取第m次str2的位置
+SELECT INSTR('hello world o!','o',6,2)AS POSITION FROM DUAL;
+
+ -- 填充
+ -- RPAD(STR1,N,STR2);将str1(可以是number类型)后面用str2填充到n个字符
+SELECT RPAD(1235,16,'*')AS str FROM DUAL;
+ -- LPAD(STR1,N,STR2);将str1(可以是number类型)前面用str2填充到n个字符
+SELECT LPAD(1235,16,'*')AS str FROM DUAL;
+
+ -- 修剪字符串
+ -- 去除首尾的某个字符串
+ -- TRIM(STR);去首尾空字符串
+SELECT TRIM(' HELLO WORLD ')AS str FROM DUAL;
+ -- TRIM(STR1 FROM STR2);去除STR2中首尾的str1
+SELECT TRIM('H'from'HELLO H WORLDH')AS str FROM DUAL;
+ -- TRIM(BOTH STR1 FROM STR2);去除STR2中首尾的str1
+SELECT TRIM(BOTH 'H'from'HELLO H WORLDH')AS str FROM DUAL;
+
+ -- 去除字符首的某个字符串
+ -- LTRIM(STR1,STR2);去除STR1中首的str2
+SELECT LTRIM('HELLO WORLDH','H')AS str FROM DUAL;
+ -- TRIM(LEADING STR1 FROM STR2);去除STR2中首的str1
+SELECT TRIM(LEADING 'H' from 'HELLO WORLDH')AS str FROM DUAL;
+
+ -- 去除字符串末尾的某个字符串
+ -- RTRIM(STR1,STR2);去除STR1中末尾的str2
+SELECT RTRIM('HELLO WORLDH','H')AS str FROM DUAL;
+ -- TRIM(TRAILING STR1 FROM STR2);去除STR2中末尾的str1
+SELECT TRIM(TRAILING 'H' from 'HELLO WORLDH')AS str FROM DUAL;
+
+ -- ASCII与字符转换
+SELECT chr(65) FROM DUAL;
+SELECT chr(65+25) FROM DUAL;
+SELECT ASCII('b') FROM DUAL;
+
+ -- 替换
+ -- REPLACE(STR1,STR2,STR3);将str1中的str2替换成str3
+ -- 无str3，str2将作删除操作
+SELECT REPLACE('HELLO WORLD','L')AS str FROM DUAL;
+```
+
+数学函数
+
+| 函数             | 作用                                           |
+| ---------------- | ---------------------------------------------- |
+| CEIL(N)/FLOOR(N) | 取整，一个天花板：大于0都进1，一个地板         |
+| ROUND(N1,N2)     | 可保留小数位数，如n2为负数，会将整数部分都舍掉 |
+| TRUNC(N1,N2)     | 与ROUND(N1,N2)相似，只是不四舍五入             |
+| SQRT(N)          | 获得n的平方根，n必须为正数                     |
+| MOD(N1,N2)       | 求余（取摸）                                   |
+| SIGN(N)          | n>0,返回1;n<0, 返回-1; 否则返回0               |
+| POWER(N1,N2)     | 返回n1的n2次方                                 |
+| 系列三角函数     | 返回三角函数值                                 |
+
+字符与数值类型转换
+
+```sql
+ -- 字符与数值类型转换
+SELECT TO_CHAR(SYSDATE) FROM DUAL;
+SELECT TO_CHAR(44855) FROM DUAL;
+SELECT TO_NUMBER('5482') FROM DUAL;
+```
+
+日期函数
+
+| 函数                  | 描述                                     |
+| --------------------- | ---------------------------------------- |
+| MONTHS\_BETWEEN(d1,d2) | 还回d1,d2之间月的数量，d1,d2可以为字符串 |
+| ADD\_MUNTHS(date,m)    | 还回日期date加上m个月后的日期，m是整数   |
+| NEXT\_DAY(date,week)   | 还回日期date中最近星期中的星期week       |
+| LAST\_DAY(date)        | 还回日期date所在月最后一天的日期         |
+| ROUND(date,fmt)       | 将日期date按格式fmt来四舍五入            |
+| TRUNC(date,fmt)       | 与ROUND类似，不四舍五入                  |
+| SYSDATE               | 还回系统时间                             |
+
+举例
+
+```sql
+ -- 当前时间
+SELECT SYSDATE FROM DUAL;
+
+ -- 得到下一小时0分0秒
+SELECT TRUNC(SYSDATE+1/24,'hh') FROM DUAL;
+
+ -- 得到下一天0时0分0秒
+SELECT TRUNC(SYSDATE+1) FROM DUAL;
+
+ -- 得到下月1号0时0分0秒
+SELECT LAST_DAY(SYSDATE) FROM DUAL; -- 当月低
+ -- 当月低+1天=下月初
+SELECT TRUNC(LAST_DAY(SYSDATE)+1) FROM DUAL;
+
+ -- 得到下年1月1号0时0分0秒
+SELECT ADD_MONTHS(TRUNC(SYSDATE,'yyyy'),12) FROM DUAL;
+
+ -- 天数后面四舍五入
+SELECT ROUND(SYSDATE) FROM DUAL;
+ -- 月数后面四舍五入
+SELECT ROUND(SYSDATE,'mm') FROM DUAL;
+ -- 年数后面四舍五入
+SELECT ROUND(SYSDATE,'YYYY') FROM DUAL;
+
+ -- 截断日期
+SELECT TRUNC(SYSDATE) FROM DUAL;
+SELECT TRUNC(SYSDATE,'MM') FROM DUAL;
+SELECT TRUNC(SYSDATE,'YYYY') FROM DUAL;
+
+ -- 日期转字符串
+SELECT TO_CHAR(SYSDATE,'yyyy-mm-dd hh:mi:ss') FROM DUAL;
+SELECT TO_CHAR(SYSDATE,'yyyy/MM/dd hh24:mi:ss') FROM DUAL;
+SELECT TO_CHAR(SYSDATE,'yyyy-mm-dd hh24:mi:ss"星期:"DAY AM') FROM DUAL;
+ -- 字符串转日期（格式与字符串长度要相同，日期必须正确）
+SELECT TO_DATE('2016.03.22 18:44:51 星期二','yyyy-mm-dd hh24:mi:ss day')currdate FROM DUAL;
+```
+
+函数嵌套
+
+```sql
+-- 得到下年1月1号0时0分0秒
+SELECT ADD_MONTHS(TRUNC(SYSDATE,'yyyy'),12) FROM DUAL;
+```
+
+通用函数
+
+| 函数                        | 描述                                                         |
+| --------------------------- | ------------------------------------------------------------ |
+| NVL(expr1,expr2)            | 与MySQL的ifnull相同                                          |
+| NVL2(expr1,expr2,expr3)     | 如何expr1为null，返回expr3，否则返回expr2。                  |
+| NULLIF(expr1,expr2)         | 与MySQL的nullif相同，比较两个表达式，相等还回空值，不等返回第一个表达式。类似于：expr1==expr2?null:expr1;要求数据类型相同 |
+| COALESCE(expr1,expr2…exprN) | 返回表达式列表里的第一个非空表达式的值，要求数据类型相同，如所有参数为空则返回null |
+| CASE                        | 和MySQL的case相同                                            |
+| DECODE                      | case的简化版                                                 |
+
+举例
+
+```sql
+SELECT * FROM EMP;
+ -- 将null值转为0
+SELECT ENAME,SAL 底薪,COMM 奖金,SAL+NVL(COMM,0) 月工资,(SAL+NVL(COMM,0))*12 年薪 FROM EMP;
+
+SELECT ENAME,SAL 底薪,COMM 奖金,SAL+NVL2(COMM,COMM,0) 月工资,(SAL+NVL2(COMM,COMM,0))*12 年薪 FROM EMP;
+```
+
+### 多行函数
+
+条件表达式
+CASE
+
+```sql
+SELECT ENAME,JOB,SAL,
+CASE JOB
+  WHEN 'SALESMAN' THEN SAL*0.9
+  WHEN 'MANAGER' THEN SAL*0.85
+  WHEN 'ANALYST' THEN SAL+100
+  WHEN 'CLERK' THEN SAL+200
+  ELSE SAL 
+END AS 调整后SAL
+FROM EMP;
+```
+
+DECODE
+
+```sql
+SELECT ENAME,JOB,SAL,
+DECODE
+(JOB,'SALESMAN',SAL*0.9,
+   'MANAGER',SAL*0.85,
+   'ANALYST',SAL+100,
+   'CLERK',SAL+200,
+   JOB,SAL  -- 优化：其余的不改变
+)调整后SAL
+FROM EMP;
+```
+
+面试题应用
+
+```sql
+CREATE TABLE TB_COURSE(
+       NAME VARCHAR2(18),
+       COURSE VARCHAR2(18),
+       GRADE NUMBER(3)
+);
+
+insert into TB_COURSE VALUES('tom','JDBC',20);
+insert into TB_COURSE VALUES('tom','Hibernate',50);
+insert into TB_COURSE VALUES('tom','Spring',80);
+insert into TB_COURSE VALUES('marry','JDBC',30);
+insert into TB_COURSE VALUES('marry','Hibernate',60);
+insert into TB_COURSE VALUES('marry','Spring',70);
+COMMIT;
+
+ -- 使查询结果消除冗余数据
+SELECT name,
+SUM(DECODE(course,'JDBC',grade))JDBC,
+SUM(DECODE(course,'Hibernate',grade))Hibernate,
+SUM(DECODE(course,'Spring',grade))Spring 
+FROM tb_course
+GROUP BY name;
+
+ -- tom的课程JDBC的GRADE
+SELECT NAME,GRADE JDBC FROM TB_COURSE WHERE NAME='tom' AND COURSE='JDBC';
+
+ -- tom的课程JDBC,Spring的GRADE
+SELECT DISTINCT NAME
+,(SELECT GRADE FROM TB_COURSE WHERE NAME='tom' AND COURSE='JDBC')JDBC
+,(SELECT GRADE FROM TB_COURSE WHERE NAME='tom' AND COURSE='Spring')Spring
+FROM TB_COURSE WHERE NAME='tom';
+
+ -- tom所有课程的GRADE
+SELECT COURSE,GRADE FROM TB_COURSE WHERE NAME='tom';
+```
+
+## 多表连接
+
+笛卡尔连接
+
+```sql
+ -- 笛卡尔积，4*14=56
+SELECT * FROM DEPT,EMP; -- 数据无意义
+
+ -- 通常需要加条件
+SELECT * FROM DEPT,EMP WHERE DEPT.DEPTNO=EMP.DEPTNO;
+```
+
+等值连接
+从两张表获取所需数据，通过主外键关系连接
+
+```sql
+ -- 查看员工及所在部门
+SELECT d.*,e.empno,e.ename,e.job,e.mgr,e.hiredate,e.sal,e.comm,(e.sal+(NVL(comm,0)))*12 年薪 
+FROM dept d,emp e 
+WHERE d.deptno=e.deptno;
+```
+
+内连接
+
+```sql
+ -- 内连接
+SELECT d.*,e.empno,e.ename,e.job,e.mgr,e.hiredate,e.sal,e.comm,(e.sal+(NVL(comm,0)))*12 年薪 
+FROM dept d,emp e 
+WHERE d.deptno=e.deptno;
+
+ -- 标准SQL语句的内连接
+SELECT d.*,e.empno,e.ename,e.job,e.mgr,e.hiredate,e.sal,e.comm,(e.sal+(NVL(comm,0)))*12 年薪 
+FROM dept d inner join emp e on d.deptno=e.deptno;
+```
+
+外部连接
+
+```sql
+ -- 外连接分左外连接、右外连接和自连接
+ -- 左外连接（左表为大，右表跟上）
+SELECT d.*,e.empno,e.ename,e.job,e.mgr,e.hiredate,e.sal,e.comm,(e.sal+(NVL(comm,0)))*12 年薪 
+FROM dept d,emp e 
+WHERE d.deptno=e.deptno(+);
+
+ -- 标准SQL语句的左外连接
+SELECT d.*,e.empno,e.ename,e.job,e.mgr,e.hiredate,e.sal,e.comm,(e.sal+(NVL(comm,0)))*12 年薪 
+FROM dept d left outer join emp e on d.deptno=e.deptno;
+
+ -- 右外连接（右表为大，左表跟上）
+SELECT d.*,e.empno,e.ename,e.job,e.mgr,e.hiredate,e.sal,e.comm,(e.sal+(NVL(comm,0)))*12 年薪 
+FROM dept d,emp e 
+WHERE d.deptno(+)=e.deptno;
+
+ -- 标准SQL语句的右外连接
+SELECT d.*,e.empno,e.ename,e.job,e.mgr,e.hiredate,e.sal,e.comm,(e.sal+(NVL(comm,0)))*12 年薪 
+FROM dept d right outer join emp e on d.deptno=e.deptno;
+```
+
+非等值连接
+
+```sql
+ -- 3*14=42条
+SELECT d.*,e.empno,e.ename,e.job,e.mgr,e.hiredate,e.sal,e.comm,(e.sal+(NVL(comm,0)))*12 年薪 
+FROM dept d,emp e 
+WHERE d.deptno != e.deptno;
+```
+
+自连接
+
+```sql
+ -- 自连接 标准SQL：left+right（左右都显示）
+SELECT d.*,e.empno,e.ename,e.job,e.mgr,e.hiredate,e.sal,e.comm,(e.sal+(NVL(comm,0)))*12 年薪 
+FROM dept d full outer join emp e on d.deptno=e.deptno;
+```
+
+## 组函数
+
+聚合函数
+
+| 函数              | 描述     |
+| ----------------- | -------- |
+| COUNT(\*|列名)    | 统计行数 |
+| AVG(数值类型列名) | 求平均数 |
+| SUM(数值类型列名) | 求和     |
+| MAX(列名)         | 最大值   |
+| MIN(列名)         | 最小值   |
+
+除了COUNT()以外，聚合函数都会忽略NULL值。
+
+举例
+
+```sql
+ -- 统计多少行数据
+SELECT COUNT(*) FROM emp;
+SELECT COUNT(1) FROM emp;
+
+ -- 统计 平均薪资
+SELECT AVG(sal) FROM emp;
+
+ -- 统计某一部门平均薪资
+SELECT AVG(sal) FROM emp WHERE deptno=20;
+
+ -- 求和
+ -- 求和某一部门总发薪资
+SELECT SUM(sal)+SUM(comm) 总发薪资 FROM emp WHERE deptno=30;
+
+ -- 最大值
+ -- 谁薪水最高？
+SELECT ename,sal FROM emp
+WHERE sal in(SELECT MAX(sal) FROM emp);
+ -- 最小值
+ -- 谁薪水最低？
+SELECT ename,sal FROM emp
+WHERE sal in(SELECT MIN(sal) FROM emp);
+
+ -- 公司状况
+SELECT COUNT(*) 人数,SUM(sal) 总发薪资,SUM(comm) 总发奖金,round(AVG(sal),2) 平均薪资,MAX(sal) 最高薪资,MIN(sal)最低薪资 FROM emp;
+
+select count(distinct deptno) 部门个数 from emp;
+```
+
+数据分组
+分组GROUP BY
+
+```sql
+- 各部门人数
+ -- 如果select之后的查询列表中有组函数的情况，
+ -- 那么出现在查询列表中的字段要么是组函数，要么在group by中，
+ -- 而出现在group by中的列可以不用出现在查询列表中
+SELECT deptno,COUNT(*) FROM emp GROUP BY deptno;
+
+ -- 各职位人数
+SELECT job,COUNT(*) FROM emp GROUP BY job;
+
+ -- 各部门平均薪资
+SELECT deptno,ROUND(AVG(sal),2) 均薪 FROM emp GROUP BY deptno;
+
+ -- 各部门整体状况
+SELECT deptno 部门, COUNT(*) 人数,SUM(sal) 总发薪资,SUM(comm) 总发奖金,round(AVG(sal),2) 平均薪资,MAX(sal) 最高薪资,MIN(sal)最低薪资 
+FROM emp GROUP BY deptno;
+
+ -- 各部门各职位的平均薪资
+SELECT deptno,job,ROUND(AVG(sal),2) 均薪 FROM emp GROUP BY job,deptno;
+```
+
+HAVING 分组后条件过滤
+
+```sql
+ -- 总薪资在一万以上的部门
+SELECT deptno,SUM(sal) 总薪资 FROM emp GROUP BY deptno HAVING SUM(sal)>10000;
+
+ -- 各部门平均薪资>2000
+SELECT deptno,ROUND(AVG(sal),2) 均薪 FROM emp GROUP BY deptno HAVING ROUND(AVG(sal),2)>2000;
+```
+
+WHRER与HAVING区别
+
+| 条件过滤 | 不同点                                       |
+| -------- | -------------------------------------------- |
+| WHERE    | 只能在分组前条件过滤不能使用聚合函数、组函数 |
+| HAVING   | 分组后条件过滤可以使用聚合函数               |
+
+相同点：都用来作条件过滤
+
+```sql
+ -- 标准SQL
+SELECT 
+FROM
+WHERE
+GROUP BY
+HAVING
+ORDER BY
+
+ -- 各部门平均薪资>2000
+SELECT deptno,ROUND(AVG(sal),2) 均薪 
+FROM emp 
+WHERE deptno IS NOT NULL
+GROUP BY deptno 
+HAVING ROUND(AVG(sal),2)>2000
+ORDER BY ROUND(AVG(sal),2) DESC; 
+/*默认ASC*/
+```
+
+## 集合查询
+
+```sql
+1.UNION
+ -- 所有不重复
+SELECT deptno FROM dept
+UNION
+SELECT deptno FROM emp;
+2.UNION ALL
+ -- 所有重复
+SELECT deptno FROM dept
+UNION ALL
+SELECT deptno FROM emp;
+3.INTERSECT
+ -- 查出交集（都有的数据）
+ -- 查询有员工的部门
+SELECT deptno FROM dept
+INTERSECT
+SELECT deptno FROM emp;
+4.MINUS
+ -- 查询在第一结果集而不在第二结果集的数据
+ -- 查询没有员工的部门
+SELECT deptno FROM dept
+MINUS
+SELECT deptno FROM emp;
+
+SELECT * FROM dept;
+SELECT * FROM emp;
+SELECT * FROM salgrade;
+```
+
+## 子查询
+
+子查询示例
+
+```sql
+SELECT * FROM emp;
+
+ -- 查询比Allen工资高的人
+
+SELECT ename FROM emp 
+WHERE sal >(
+SELECT sal FROM emp WHERE ename='ALLEN'
+);
+
+ -- 查询和Allen一个部门的员工
+
+SELECT ename FROM emp 
+WHERE deptno =(
+SELECT deptno FROM emp WHERE ename='ALLEN'
+);
+
+ -- 工资高过公司平均工资的员工
+SELECT ename,sal FROM emp 
+WHERE sal >(
+SELECT ROUND(AVG(sal),2) FROM emp
+);
+
+ -- 当子查询返回多个结果
+ -- 各部门最低工资
+SELECT deptno,ename,sal FROM emp 
+WHERE sal in (
+SELECT MIN(sal) FROM emp GROUP BY deptno
+);
+
+ -- 子查询没有结果，后面的也查不出结果
+SELECT ename FROM emp 
+WHERE deptno =(
+SELECT deptno FROM emp WHERE ename='sldkjfidsfs'
+);
+```
+
+ANY 和 ALL 示例
+
+```sql
+ -- A [<>=!=] ANY(B,C,D...)A与里面的每一个值作比较，任何一个满足即查出
+SELECT deptno,ename,sal FROM emp 
+WHERE sal < ANY (
+SELECT MIN(sal) FROM emp GROUP BY deptno
+);
+
+ -- A [<>=!=] ALL(B,C,D...)A与里面的每一个值作比较，全部满足才查出
+SELECT deptno,ename,sal FROM emp 
+WHERE sal > ALL (
+SELECT MIN(sal) FROM emp GROUP BY deptno
+);
+ -- EXISTS和IN
+ -- EXISTS内表数据量大无所谓
+ -- 查询有员工的部门,员工部门id=我部门id就把我的部门查出来
+SELECT deptno,dname FROM dept d
+WHERE EXISTS(
+SELECT deptno FROM emp WHERE deptno=d.deptno
+);
+ -- EXISTS返回的不是数据而是真和假
+SELECT deptno,dname FROM dept d
+WHERE EXISTS(
+SELECT 1 FROM emp WHERE deptno = d.deptno
+);
+
+ -- 查询没有员工的部门
+SELECT deptno,dname FROM dept d
+WHERE NOT EXISTS(
+SELECT 1 FROM emp WHERE deptno=d.deptno
+);
+
+ -- IN内表数据量大查询就慢
+ -- 查询没有员工的部门
+SELECT deptno,dname FROM dept
+WHERE deptno NOT IN(
+SELECT deptno FROM emp
+);
+```
+
+## 分页 rownum 和 rowid
+
+```sql
+ -- ROWNUM伪列
+ -- 在查询结果中排成的数列
+SELECT ROWNUM FROM emp;
+ -- 分页
+ -- 每页4条数据，第3页
+SELECT empno,ename,t.rown FROM (
+SELECT empno,ename,ROWNUM rown FROM emp t
+) t 
+WHERE t.rown BETWEEN ((3-1)*4)+1 AND 3*4;
+ -- ROWID内存地址
+SELECT ROWID,empno,ename FROM emp;
+ -- ROWID当条件使用查询最快
+SELECT empno,ename FROM emp 
+WHERE ROWID = 'AAAMlsAAEAAAAAgAAH';
+ -- 删除重复数据
+ -- 删除重复数据（字段name，age），
+CREATE TABLE tb_test(
+       id NUMBER PRIMARY KEY,
+       name VARCHAR2(18),
+       age NUMBER
+);
+ -- 创建序列生成器
+CREATE SEQUENCE tb_test_seq;
+ -- 插入数据
+INSERT INTO tb_test VALUES(tb_test_seq.nextval,'tom',22);
+INSERT INTO tb_test VALUES(tb_test_seq.nextval,'marry',23);
+INSERT INTO tb_test VALUES(tb_test_seq.nextval,'tom',22);
+INSERT INTO tb_test VALUES(tb_test_seq.nextval,'alice',22);
+INSERT INTO tb_test VALUES(tb_test_seq.nextval,'tom',22);
+INSERT INTO tb_test VALUES(tb_test_seq.nextval,'scott',18);
+INSERT INTO tb_test VALUES(tb_test_seq.nextval,'scott',18);
+INSERT INTO tb_test VALUES(tb_test_seq.nextval,'scott',20);
+COMMIT;
+
+ -- 1、重复数据完全删除 
+DELETE tb_test 
+WHERE name IN ( 
+  SELECT name FROM tb_test 
+  GROUP BY name,age 
+  HAVING COUNT(*)>1
+)and age IN(
+  SELECT age FROM tb_test 
+  GROUP BY name,age 
+  HAVING COUNT(*)>1
+);
+
+SELECT * FROM tb_test;
+
+
+ -- 2、删除重复数据，但要保留一条
+ -- 创建临时表将整理成不重复的数据装入
+CREATE TABLE tb_tmp AS 
+SELECT DISTINCT name,age FROM tb_test; 
+
+ -- 截断表
+TRUNCATE TABLE tb_test;
+
+ -- 删除序列生成器，重新创建
+drop sequence tb_test_seq;
+create sequence tb_test_seq;
+
+ -- 把临时表中的数据取回来
+INSERT INTO tb_test SELECT tb_test_seq.nextval,name,age FROM tb_tmp;
+
+ -- 删除临时表
+DROP TABLE tb_tmp;
+
+SELECT * FROM tb_test;
+```
+
+## sequence 序列
+
+什么是序列？
+
+自动生成的唯一序列号，是可共享是对象。
+
+通常用来创建主键值，替换原有的程序代码。
+
+把序列缓存到内存当中，可以加速访问序列的效率。
+
+```sql
+ -- 创建
+CREATE SEQUENCE tb_class_sequ;
+ -- 删除
+DROP SEQUENCE   tb_class_sequ;
+ -- 查看
+SELECT * FROM USER_SEQUENCES;
+ -- 使用
+ -- 先执行nextval，currval才会有值
+select tb_class_sequ.nextval from dual;
+select tb_class_sequ.currval from dual;
+```
+
+## 同义词
+
+```sql
+select * from scott.emp;
+
+ -- 创建同义词
+CREATE SYNONYM tb_tmp FOR scott.emp;
+ -- 使用同义词
+SELECT * FROM tb_tmp;
+ -- 删除同义词
+DROP SYNONYM tb_tmp;
+1.连接到其他数据库
+ -- 数据库连接 link
+CREATE DATABASE LINK linksystem
+       CONNECT TO system IDENTIFIED BY orcl
+       USING'(DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = 127.0.0.1)(PORT = 1521))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = orcl)
+    )
+  )';
+
+drop database link linksystem
+
+SELECT * FROM dba_tables@linksystem;
+
+CREATE SYNONYM systemtables FOR dba_tables@linksystem;
+
+SELECT * FROM systemtables
+```
+
+## 索引
+
+待补充
+
+## 视图
+
+```sql
+ -- 创建视图
+CREATE VIEW v_class_student AS 
+SELECT tb_class.class_name,tb_student.stu_name,tb_student.sex,tb_student.age,tb_student.address,tb_student.email 
+FROM tb_class INNER JOIN tb_student 
+ON tb_class.class_id=tb_student.class_id;
+
+SELECT * FROM v_class_student;
+
+ -- 删除视图
+DROP VIEW v_class_student;
+```
+
+## 待补充
+
+plsql定义变量
+
+plsql操作数据
+
+复合数据类型
+
+流程控制
+异常处理
+游标
+存储过程
+函数和包
+触发器
 
 ---
 
